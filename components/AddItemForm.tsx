@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
-import type { ShoppingItem, ShoppingItemInput } from '../types/shopping';
+import type { LocalShoppingItem as ShoppingItem, ShoppingItemInput } from '../types/shopping';
 import { UNITS } from '../constants/units';
 import { colors } from '../constants/theme';
 import { parseItemInput } from '../services/shoppingLogic';

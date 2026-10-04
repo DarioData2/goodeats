@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import type { ShoppingItem as Item } from '../types/shopping';
+import type { LocalShoppingItem as Item } from '../types/shopping';
 import { ShoppingItem } from './ShoppingItem';
 import { colors } from '../constants/theme';
 type Props = { items: Item[]; disabled: boolean; onToggle: (id: string) => void; onEdit: (item: Item) => void; onDelete: (id: string) => void };

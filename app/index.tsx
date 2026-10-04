@@ -6,9 +6,25 @@ import { ShoppingList } from '../components/ShoppingList';
 import { Button } from '../components/Button';
 import { colors } from '../constants/theme';
 import { useShoppingList } from '../hooks/useShoppingList';
-import type { ShoppingItem, ShoppingItemInput } from '../types/shopping';
-export default function ShoppingScreen() {
+import { useCloudShoppingList } from '../hooks/useCloudShoppingList';
+import { AccountPanel } from '../components/AccountPanel';
+import { CloudListControls } from '../components/CloudListControls';
+import type { User } from '@supabase/supabase-js';
+import type { LocalShoppingItem as ShoppingItem, ShoppingItemInput } from '../types/shopping';
+export default function ShoppingScreen({ user }: { user: User | null }) {
+  return user ? <CloudShoppingScreen user={user} /> : <LocalShoppingScreen />;
+}
+function LocalShoppingScreen() {
   const list = useShoppingList();
+  return <ShoppingContent list={list} user={null} />;
+}
+function CloudShoppingScreen({ user }: { user: User }) {
+  const list = useCloudShoppingList();
+  return <ShoppingContent key={list.selectedId ?? 'no-list'} list={list} cloud={list} user={user} />;
+}
+function ShoppingContent({ list, cloud, user }: {
+  list: ReturnType<typeof useShoppingList>; cloud?: ReturnType<typeof useCloudShoppingList>; user: User | null;
+}) {
   const [editing, setEditing] = useState<ShoppingItem | null>(null);
   const scroll = useRef<ScrollView>(null);
   const wide = useWindowDimensions().width >= 850;
@@ -28,10 +44,12 @@ export default function ShoppingScreen() {
           <View style={styles.intro}><Text style={styles.kicker}>TU COCINA, ORGANIZADA</Text>
             <Text style={[styles.heading, !wide && { fontSize: 34 }]}>Mi lista de compras</Text>
             <Text style={styles.subtitle}>Todo lo que necesitas, a mano.</Text></View>
+          <AccountPanel user={user} disabled={list.loading || list.saving} />
+          {cloud && <CloudListControls list={cloud} />}
           {list.error && <View style={styles.errorBox}><Text accessibilityRole="alert" style={styles.error}>{list.error}</Text>
             {!list.ready && <Button label="Volver a cargar" secondary disabled={list.loading} onPress={() => void list.reload()} />}</View>}
           <View style={[styles.columns, wide && styles.wide]}>
-            <View style={wide ? styles.formColumn : undefined}><AddItemForm key={editing?.id ?? 'new'} editing={editing} disabled={disabled} saving={list.saving}
+            <View style={wide ? styles.formColumn : undefined}><AddItemForm key={`${cloud?.selectedId ?? 'local'}:${editing?.id ?? 'new'}`} editing={editing} disabled={disabled} saving={list.saving}
               onSubmit={submit} onCancel={() => setEditing(null)} /></View>
             <View style={styles.listColumn}>
               <View style={styles.listHeader}><Text style={styles.listTitle}>Tu lista</Text><Text style={styles.count}>{list.items.length} {list.items.length === 1 ? 'producto' : 'productos'}</Text></View>
@@ -42,7 +60,7 @@ export default function ShoppingScreen() {
                   onEdit={item => { setEditing(item); scroll.current?.scrollTo({ y: 0, animated: true }); }}
                   onDelete={id => { void list.remove(id).then(saved => { if (saved && editing?.id === id) setEditing(null); }); }} />}
               <View style={styles.footer}>
-                <Text accessibilityLiveRegion="polite" style={styles.localNote}>{list.saving ? 'Guardando cambios…' : list.ready ? 'Guardado en este dispositivo' : 'Almacenamiento local'}</Text>
+                <Text accessibilityLiveRegion="polite" style={styles.localNote}>{list.saving ? 'Guardando cambios…' : cloud ? list.ready ? 'Guardado en Supabase · usa Actualizar para ver cambios de otros dispositivos' : 'Supabase · selecciona o crea una lista' : list.ready ? 'Guardado en este dispositivo' : 'Almacenamiento local'}</Text>
                 <Button label="Limpiar comprados" secondary disabled={disabled || purchased === 0}
                   onPress={() => { void list.clearPurchased().then(saved => { if (saved && editing && list.items.find(item => item.id === editing.id)?.purchased) setEditing(null); }); }} />
               </View>

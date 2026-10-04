@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import type { ShoppingItem as Item } from '../types/shopping';
+import type { LocalShoppingItem as Item } from '../types/shopping';
 import { colors } from '../constants/theme';
 type Props = { item: Item; disabled: boolean; onToggle: () => void; onEdit: () => void; onDelete: () => void };
 export function ShoppingItem({ item, disabled, onToggle, onEdit, onDelete }: Props) {

@@ -1,4 +1,4 @@
-import type { ShoppingItem, ShoppingItemInput } from '../types/shopping';
+import type { LocalShoppingItem as ShoppingItem, ShoppingItemInput } from '../types/shopping';
 
 export function parseItemInput(name: string, quantity: string, unit: string): ShoppingItemInput {
   const cleanName = name.trim();

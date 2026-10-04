@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { randomUUID } from 'expo-crypto';
-import type { ShoppingItem, ShoppingItemInput, ShoppingStorage } from '../types/shopping';
+import type { LocalShoppingItem as ShoppingItem, ShoppingItemInput, ShoppingStorage } from '../types/shopping';
 import { shoppingStorage } from '../services/shoppingStorage';
 import { clearPurchased, toggleItem, updateItem } from '../services/shoppingLogic';
 

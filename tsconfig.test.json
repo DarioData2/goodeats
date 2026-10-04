@@ -4,8 +4,9 @@
     "module": "Node16",
     "moduleResolution": "Node16",
     "strict": true,
+    "types": ["node"],
     "skipLibCheck": true,
     "outDir": ".test-build"
   },
-  "include": ["services/shoppingLogic.ts", "types/shopping.ts"]
+  "include": ["services/shoppingLogic.ts", "services/cloudShoppingLogic.ts", "services/shoppingService.ts", "services/authService.ts", "types/shopping.ts"]
 }
