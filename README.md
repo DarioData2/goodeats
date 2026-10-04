@@ -23,6 +23,8 @@ npm run web
 
 Expo abre el navegador; también puedes presionar `w` desde `npm start`. Usa la URL que muestra la terminal (normalmente http://localhost:8081). La pantalla coloca formulario y lista en columnas desde 850 px; en teléfono los apila.
 
+Para publicar en Cloudflare Pages con `goodeats.cl`, consulta [la configuración de despliegue](docs/cloudflare.md). Compilación: `npm run build:cloudflare`; carpeta de salida: `dist`.
+
 ## Android con Expo Go
 
 1. Instala Expo Go compatible con **SDK 57**. Consulta [la descarga oficial por SDK y plataforma](https://expo.dev/go) si la versión instalada no coincide; la versión de la tienda puede diferir.
