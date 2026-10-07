@@ -4,6 +4,8 @@
 
 ### Filas compactas e iconos de acciones
 
+- Corrección web: lápiz y papelera ahora se dibujan con SVG para evitar símbolos vacíos cuando la fuente de iconos no se renderiza en producción. Se mantienen colores, etiquetas accesibles y áreas táctiles.
+
 - Se redujo el espacio vertical de cada producto y se colocaron las acciones lado a lado.
 - Se reemplazaron los textos de editar y eliminar por iconos Feather de lápiz y papelera mediante `@expo/vector-icons`, instalado con Expo para SDK 57.
 - Se conservaron las etiquetas accesibles por producto y áreas táctiles de 44 × 44 para las acciones.

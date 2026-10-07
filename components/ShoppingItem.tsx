@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Feather from '@expo/vector-icons/Feather';
+import { ActionIcon } from './ActionIcon';
 import type { LocalShoppingItem as Item } from '../types/shopping';
 import { colors } from '../constants/theme';
 type Props = { item: Item; disabled: boolean; onToggle: () => void; onEdit: () => void; onDelete: () => void };
@@ -17,11 +17,11 @@ export function ShoppingItem({ item, disabled, onToggle, onEdit, onDelete }: Pro
     <View style={styles.actions}>
       <Pressable accessibilityRole="button" accessibilityLabel={`Editar ${item.name}`} accessibilityState={{ disabled }} disabled={disabled} onPress={onEdit}
         style={({ pressed }) => [styles.action, (pressed || disabled) && { opacity: 0.5 }]}>
-        <Feather name="edit-2" size={19} color={colors.primaryDark} accessible={false} />
+        <ActionIcon name="edit" color={colors.primaryDark} />
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel={`Eliminar ${item.name}`} accessibilityState={{ disabled }} disabled={disabled} onPress={onDelete}
         style={({ pressed }) => [styles.action, (pressed || disabled) && { opacity: 0.5 }]}>
-        <Feather name="trash-2" size={19} color={colors.danger} accessible={false} />
+        <ActionIcon name="delete" color={colors.danger} />
       </Pressable>
     </View>
   </View>;
