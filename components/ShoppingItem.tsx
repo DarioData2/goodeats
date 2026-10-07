@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
 import type { LocalShoppingItem as Item } from '../types/shopping';
 import { colors } from '../constants/theme';
 type Props = { item: Item; disabled: boolean; onToggle: () => void; onEdit: () => void; onDelete: () => void };
@@ -14,18 +15,23 @@ export function ShoppingItem({ item, disabled, onToggle, onEdit, onDelete }: Pro
       {!!details && <Text style={styles.details}>{details}</Text>}
     </View>
     <View style={styles.actions}>
-      <Pressable accessibilityRole="button" accessibilityLabel={`Editar ${item.name}`} disabled={disabled} onPress={onEdit} style={styles.action}><Text style={styles.edit}>Editar</Text></Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel={`Eliminar ${item.name}`} disabled={disabled} onPress={onDelete} style={styles.action}><Text style={styles.delete}>Eliminar</Text></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Editar ${item.name}`} accessibilityState={{ disabled }} disabled={disabled} onPress={onEdit}
+        style={({ pressed }) => [styles.action, (pressed || disabled) && { opacity: 0.5 }]}>
+        <Feather name="edit-2" size={19} color={colors.primaryDark} accessible={false} />
+      </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Eliminar ${item.name}`} accessibilityState={{ disabled }} disabled={disabled} onPress={onDelete}
+        style={({ pressed }) => [styles.action, (pressed || disabled) && { opacity: 0.5 }]}>
+        <Feather name="trash-2" size={19} color={colors.danger} accessible={false} />
+      </Pressable>
     </View>
   </View>;
 }
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: colors.surface, gap: 8 },
+  row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, backgroundColor: colors.surface, gap: 6 },
   purchased: { backgroundColor: colors.primarySoft }, checkTarget: { width: 44, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   checkbox: { width: 25, height: 25, borderWidth: 1.5, borderColor: colors.controlBorder, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   checked: { backgroundColor: colors.primaryDark, borderColor: colors.primaryDark }, checkText: { color: '#FFFFFF', fontSize: 17, fontWeight: '700' },
-  description: { flex: 1, gap: 5 }, name: { color: colors.ink, fontSize: 16, fontWeight: '600' },
+  description: { flex: 1, minWidth: 0, gap: 2 }, name: { color: colors.ink, fontSize: 16, fontWeight: '600' },
   strike: { textDecorationLine: 'line-through', color: colors.muted }, details: { color: colors.muted, fontSize: 13 },
-  actions: { alignItems: 'flex-end' }, action: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 },
-  edit: { color: colors.primaryDark, fontWeight: '600', fontSize: 13 }, delete: { color: colors.danger, fontSize: 13 },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: 2 }, action: { width: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center', borderRadius: 10 },
 });

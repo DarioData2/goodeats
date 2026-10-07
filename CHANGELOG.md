@@ -2,6 +2,13 @@
 
 ## 2026-10-06 — Acceso en el encabezado y lista unificada
 
+### Filas compactas e iconos de acciones
+
+- Se redujo el espacio vertical de cada producto y se colocaron las acciones lado a lado.
+- Se reemplazaron los textos de editar y eliminar por iconos Feather de lápiz y papelera mediante `@expo/vector-icons`, instalado con Expo para SDK 57.
+- Se conservaron las etiquetas accesibles por producto y áreas táctiles de 44 × 44 para las acciones.
+- Lint y TypeScript aprobados; iconos revisados en la web local.
+
 - El acceso a la cuenta se trasladó del panel de la lista al lado derecho del encabezado.
 - Se añadió `/login` para iniciar sesión, registrarse y gestionar la cuenta, con un enlace de regreso a la lista.
 - Se incorporó Expo Router y se organizaron las rutas en `src/app/`. Un proveedor compartido mantiene el estado de autenticación entre páginas.
