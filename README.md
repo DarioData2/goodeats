@@ -4,6 +4,14 @@ Lista de compras manual en español creada con Expo, React Native y TypeScript. 
 
 Incluye registro e inicio de sesión con Supabase Auth y listas de compras en la nube. Sin sesión conserva el MVP local. No incluye planificación, recetas ni IA. Consulta [la integración de Supabase](docs/supabase.md).
 
+Web publicada: [goodeats.cl](https://goodeats.cl). Los cambios enviados a `main` se despliegan automáticamente en Cloudflare Pages. Consulta el [historial de cambios](CHANGELOG.md).
+
+## Acceso y lista de compras
+
+El botón «Iniciar sesión» está a la derecha del encabezado y abre la página `/login`, donde puedes iniciar sesión, crear una cuenta y mostrar u ocultar la contraseña. «Volver a la lista» regresa a `/`. Con una sesión activa, el botón del encabezado muestra «Mi cuenta» y permite acceder al cierre de sesión.
+
+Los productos se presentan como filas dentro de un único panel, con separadores entre ellos. Cada fila conserva las acciones de marcar/desmarcar, editar y eliminar. Este cambio es visual: las listas locales y las de Supabase mantienen sus respectivos datos y no se fusionan automáticamente.
+
 ## Ejecutar
 
 Requisitos: Node.js LTS compatible con Expo SDK 57 (se verificó con Node 24) y npm.
@@ -33,15 +41,21 @@ Para publicar en Cloudflare Pages con `goodeats.cl`, consulta [la configuración
 4. Si Windows solicita acceso de red, permite Node.js en tu red privada. Revisa que firewall y aislamiento Wi-Fi permitan la conexión.
 5. Para un emulador Android ya configurado y abierto, usa `npm run android` o presiona `a`.
 
-El MVP local funciona incluso sin configurar Supabase. Para guardar en la nube, pulsa «Iniciar sesión o crear cuenta», confirma tu correo si lo solicita Supabase y crea una lista. No requiere compilación EAS; la verificación de bundle Android no sustituye una prueba en teléfono físico.
+El MVP local funciona incluso sin configurar Supabase. Para guardar en la nube, pulsa «Iniciar sesión» en el encabezado, confirma tu correo si lo solicita Supabase, vuelve a la lista y crea una lista. La navegación usa Expo Router con versiones compatibles con SDK 57. La verificación de bundle Android no sustituye una prueba en teléfono físico.
 
 ## Estructura
 
 ```text
-App.tsx                     # Proveedores y entrada de pantalla
-index.ts                    # Registro de Expo
-app/index.tsx               # Pantalla responsive
+package.json                # Entrada principal: expo-router/entry
+src/app/
+  _layout.tsx               # Proveedores, sesión y rutas
+  index.tsx                 # Ruta /: lista de compras
+  login.tsx                 # Ruta /login: acceso y cuenta
+contexts/AuthContext.tsx    # Una sesión compartida entre páginas
 components/
+  AppHeader.tsx             # Marca y enlace de acceso/cuenta
+  AccountPanel.tsx          # Login, registro, contraseña y cierre de sesión
+  ShoppingScreen.tsx        # Pantalla responsive local o nube
   AddItemForm.tsx            # Formulario de alta y edición
   ShoppingItem.tsx           # Producto, checkbox y acciones
   ShoppingList.tsx           # Lista y estado vacío
@@ -88,6 +102,8 @@ Las exportaciones generan bundles en `dist/`; no producen APK/AAB ni publican la
 
 Prueba manual en web y Expo Go: agregar Tomates (6 unidades) y Leche (2 litros), editar cantidad/unidad, quitar una cantidad, marcar y desmarcar, eliminar individualmente y limpiar comprados dejando pendientes intactos. Cierra y vuelve a abrir para verificar persistencia. Prueba también nombre vacío y cantidad cero, negativos o texto.
 
+Para la navegación: abre «Iniciar sesión», verifica que la URL sea `/login`, recarga esa dirección directamente y vuelve a `/`. Los productos locales deben conservarse. Alterna login/registro y Mostrar/Ocultar contraseña. Revisa el encabezado y las filas de la lista en teléfono y escritorio.
+
 ## Validación realizada
 
 - TypeScript y lint sin errores y catorce pruebas automatizadas aprobadas.
@@ -95,4 +111,4 @@ Prueba manual en web y Expo Go: agregar Tomates (6 unidades) y Leche (2 litros),
 - Bundles de web y Android generados correctamente; versiones compatibles verificadas con `expo install --check`.
 - En navegador: altas, selección de unidad, edición decimal con coma, marcado, recarga con persistencia, limpieza selectiva, eliminación y validación de nombre vacío. Diseño revisado a 390 px y en escritorio.
 - No se probó en un dispositivo físico Android; sigue los pasos de Expo Go para esa comprobación.
-- `npm audit` reportó 23 avisos en dependencias transitivas del stack (7 moderados, 16 altos). No se aplicó `npm audit fix --force`: propone retroceder Expo a SDK 44 y React Native a 0.72, incompatibles con este proyecto. Revisar parches compatibles del stack antes de distribuirlo.
+- La instalación de Expo Router reportó 29 avisos de auditoría (10 moderados, 19 altos) y un aviso de peer dependency transitiva de `react-native-worklets`. La compilación web y TypeScript pasan. Revisar parches compatibles antes de distribuir builds nativos; no se aplicaron actualizaciones forzadas del stack.

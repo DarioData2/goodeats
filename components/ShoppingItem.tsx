@@ -20,7 +20,7 @@ export function ShoppingItem({ item, disabled, onToggle, onEdit, onDelete }: Pro
   </View>;
 }
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', padding: 12, borderWidth: 1, borderColor: colors.border, borderRadius: 16, backgroundColor: colors.surface, gap: 8 },
+  row: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: colors.surface, gap: 8 },
   purchased: { backgroundColor: colors.primarySoft }, checkTarget: { width: 44, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   checkbox: { width: 25, height: 25, borderWidth: 1.5, borderColor: colors.controlBorder, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   checked: { backgroundColor: colors.primaryDark, borderColor: colors.primaryDark }, checkText: { color: '#FFFFFF', fontSize: 17, fontWeight: '700' },

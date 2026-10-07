@@ -7,7 +7,7 @@ import { Button } from '../components/Button';
 import { colors } from '../constants/theme';
 import { useShoppingList } from '../hooks/useShoppingList';
 import { useCloudShoppingList } from '../hooks/useCloudShoppingList';
-import { AccountPanel } from '../components/AccountPanel';
+import { AppHeader } from './AppHeader';
 import { CloudListControls } from '../components/CloudListControls';
 import type { User } from '@supabase/supabase-js';
 import type { LocalShoppingItem as ShoppingItem, ShoppingItemInput } from '../types/shopping';
@@ -39,12 +39,10 @@ function ShoppingContent({ list, cloud, user }: {
     <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
-          <View style={styles.brandRow}><Text style={styles.logo}>G<Text style={{ color: colors.accent }}>oo</Text>dEats<Text style={{ color: colors.accent }}> ·</Text></Text>
-            <Text style={styles.brandNote}>MENOS OLVIDOS. MÁS ORDEN.</Text></View>
+          <AppHeader user={user} />
           <View style={styles.intro}><Text style={styles.kicker}>TU COCINA, ORGANIZADA</Text>
             <Text style={[styles.heading, !wide && { fontSize: 34 }]}>Mi lista de compras</Text>
             <Text style={styles.subtitle}>Todo lo que necesitas, a mano.</Text></View>
-          <AccountPanel user={user} disabled={list.loading || list.saving} />
           {cloud && <CloudListControls list={cloud} />}
           {list.error && <View style={styles.errorBox}><Text accessibilityRole="alert" style={styles.error}>{list.error}</Text>
             {!list.ready && <Button label="Volver a cargar" secondary disabled={list.loading} onPress={() => void list.reload()} />}</View>}
@@ -75,8 +73,6 @@ function ShoppingContent({ list, cloud, user }: {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' },
-  brandRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 12, paddingBottom: 24, borderBottomWidth: 1, borderBottomColor: '#FFFFFF55' },
-  logo: { fontSize: 28, fontWeight: '800', letterSpacing: -1.2, color: colors.surface }, brandNote: { fontSize: 10, fontWeight: '600', letterSpacing: 1.5, color: colors.ink },
   intro: { paddingVertical: 32, gap: 10 }, kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 2, color: colors.ink },
   heading: { fontSize: 44, fontWeight: '700', letterSpacing: -1.4, color: colors.surface }, subtitle: { fontSize: 16, color: colors.ink },
   columns: { gap: 28 }, wide: { flexDirection: 'row', alignItems: 'flex-start' }, formColumn: { width: 340 }, listColumn: { flex: 1, gap: 16 },
@@ -86,3 +82,4 @@ const styles = StyleSheet.create({
   bottom: { color: colors.ink, fontSize: 12, textAlign: 'center', marginTop: 40, marginBottom: 12 },
   errorBox: { padding: 16, backgroundColor: colors.errorBackground, borderRadius: 14, marginBottom: 20, gap: 12 }, error: { color: colors.danger, lineHeight: 22 },
 });
+

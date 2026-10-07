@@ -7,7 +7,6 @@ import { colors } from '../constants/theme';
 import { Button } from './Button';
 
 export function AccountPanel({ user, disabled }: { user: User | null; disabled: boolean }) {
-  const [expanded, setExpanded] = useState(false);
   const [register, setRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,10 +45,8 @@ export function AccountPanel({ user, disabled }: { user: User | null; disabled: 
   return <View style={styles.card}>
     <Text style={styles.title}>{user ? 'Tu cuenta' : 'Tu lista, en todos tus dispositivos'}</Text>
     <Text style={styles.note}>{user ? user.email : 'Inicia sesión para guardar en Supabase. Sin sesión puedes seguir usando tu lista local.'}</Text>
-    {user ? <Button secondary label={busy ? 'Cerrando sesión…' : 'Cerrar sesión'} disabled={disabled || busy} onPress={() => void logout()} /> :
-      <Button secondary label={expanded ? 'Continuar con lista local' : 'Iniciar sesión o crear cuenta'} disabled={disabled || busy || !!supabaseConfigurationError}
-        onPress={() => { setExpanded(!expanded); setShowPassword(false); setError(null); }} />}
-    {!user && expanded && <View style={styles.form}>
+    {user && <Button secondary label={busy ? 'Cerrando sesión…' : 'Cerrar sesión'} disabled={disabled || busy} onPress={() => void logout()} />}
+    {!user && <View style={styles.form}>
       <Text style={styles.title}>{register ? 'Crear cuenta' : 'Iniciar sesión'}</Text>
       <TextInput accessibilityLabel="Correo electrónico" placeholder="tu@correo.com" placeholderTextColor={colors.muted}
         value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false}

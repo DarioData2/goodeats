@@ -2,6 +2,16 @@
 
 El proyecto es una aplicación estática de Expo Web. Pages aloja la interfaz y Supabase mantiene Auth y la base de datos. No requiere Workers, Pages Functions ni un backend adicional.
 
+## Despliegue configurado
+
+- Proyecto Pages: `goodeats`; repositorio: `DarioData2/goodeats`; rama: `main`.
+- Producción: https://goodeats.cl; dirección alternativa: https://goodeats-1om.pages.dev.
+- Zona DNS de `goodeats.cl` activa en el plan gratuito, con `gemma.ns.cloudflare.com` y `nick.ns.cloudflare.com` configurados en NIC Chile.
+- Dominio raíz asociado desde Pages y HTTPS comprobado. `www.goodeats.cl` no se ha configurado.
+- Site URL de Supabase Auth: `https://goodeats.cl`.
+
+La aplicación usa Expo Router con `/` y `/login`. La exportación conserva el formato SPA; el fallback de Pages debe permitir recargar directamente `/login`.
+
 ## Configuración del proyecto Pages
 
 En Cloudflare, abre Workers & Pages, crea una aplicación Pages y elige importar un repositorio Git existente. Selecciona `DarioData2/goodeats` y concede acceso únicamente a este repositorio cuando GitHub solicite instalar o autorizar Cloudflare.
