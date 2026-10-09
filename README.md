@@ -2,7 +2,7 @@
 
 Lista de compras manual en español creada con Expo, React Native y TypeScript. Comparte código entre web y Android. Incluye agregar, editar, eliminar, marcar/desmarcar comprados, contadores y limpieza de comprados. Cantidad opcional; admite decimales con punto o coma. Nombre obligatorio y cantidades positivas.
 
-Incluye registro e inicio de sesión con Supabase Auth y listas de compras en la nube. Sin sesión conserva el MVP local. No incluye planificación, recetas ni IA. Consulta [la integración de Supabase](docs/supabase.md).
+Incluye registro e inicio de sesión con Supabase Auth y listas de compras en la nube. Sin sesión conserva el MVP local. Incluye un menú semanal manual con guardado local; no incluye recetas ni IA. Consulta [la integración de Supabase](docs/supabase.md).
 
 Web publicada: [goodeats.cl](https://goodeats.cl). Los cambios enviados a `main` se despliegan automáticamente en Cloudflare Pages. Consulta el [historial de cambios](CHANGELOG.md).
 
@@ -11,6 +11,12 @@ Web publicada: [goodeats.cl](https://goodeats.cl). Los cambios enviados a `main`
 El botón «Iniciar sesión» está a la derecha del encabezado y abre la página `/login`, donde puedes iniciar sesión, crear una cuenta y mostrar u ocultar la contraseña. «Volver a la lista» regresa a `/`. Con una sesión activa, el botón del encabezado muestra «Mi cuenta» y permite acceder al cierre de sesión.
 
 Los productos se presentan como filas dentro de un único panel, con separadores entre ellos. Cada fila conserva las acciones de marcar/desmarcar, editar y eliminar. Este cambio es visual: las listas locales y las de Supabase mantienen sus respectivos datos y no se fusionan automáticamente.
+
+## Mi menú
+
+El enlace «Mi menú» del encabezado abre `/menu`. Permite escribir un almuerzo por día de lunes a domingo, dejando campos vacíos cuando no sean necesarios. El calendario situado sobre el lunes muestra las fechas y permite cambiar de semana. Pulsa «Guardar menú» al final del domingo antes de salir o cambiar de semana; guarda todos los almuerzos de la semana seleccionada.
+
+El menú se guarda con AsyncStorage en este dispositivo, separado por semana, cuenta y uso sin sesión. El menú anterior sin fechas se conserva en la semana actual al cargarlo por primera vez. Los campos antiguos de desayuno y cena se conservan en el almacenamiento aunque ya no se muestran. Los menús aún no se sincronizan con Supabase.
 
 ## Ejecutar
 

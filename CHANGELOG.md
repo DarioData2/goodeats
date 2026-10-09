@@ -1,5 +1,22 @@
 # Historial de cambios
 
+## 2026-10-09 — Mi menú semanal
+
+### Calendario y almuerzos
+
+- Guardar menú usa el amarillo de la marca. Los días con almuerzo guardado se destacan en turquesa oscuro con un icono SVG de plato y cubiertos; la marca refleja el último guardado confirmado, también al recargar o vaciar un almuerzo.
+
+- Calendario sobre el lunes con fechas y navegación por semanas; cada semana conserva su menú local por separado.
+- Se muestra solo el almuerzo por día y el contador refleja esos almuerzos. Los datos anteriores se conservan.
+- Un único botón Guardar menú al final del domingo guarda la semana completa; cambiar de semana requiere guardar los cambios pendientes.
+- Verificación: lint, TypeScript y 16 pruebas aprobadas, incluidos cambios de mes y año. En navegador se comprobaron siete campos de almuerzo, un único botón de guardado, persistencia por semana y conservación del almuerzo anterior.
+
+- Enlace «Mi menú» en el encabezado y nueva ruta `/menu`, con regreso a «Mi lista».
+- Planificación manual de almuerzos para los siete días, con campos opcionales y contador.
+- Guardado local separado por cuenta y uso sin sesión. Se conservan borradores si falla el guardado y se bloquea la edición si falla la carga para proteger los datos existentes.
+- Menús editables por semana; no sincroniza menús con Supabase ni genera productos automáticamente.
+- Verificación: lint, TypeScript y exportación web aprobados. En navegador local se comprobó navegación desde el encabezado, guardado de platos, persistencia al recargar `/menu` y regreso a la lista conservando sus productos. Se retiraron los platos de prueba.
+
 ## 2026-10-08 — Edición dentro de la lista
 
 - El lápiz abre un editor debajo del producto para cambiar nombre, cantidad y unidad sin volver al formulario superior.
