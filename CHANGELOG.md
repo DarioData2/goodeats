@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## 2026-10-08 — Edición dentro de la lista
+
+- El lápiz abre un editor debajo del producto para cambiar nombre, cantidad y unidad sin volver al formulario superior.
+- Guardar cierra el editor tras confirmar el guardado; Cancelar descarta el borrador. Se conserva la validación de cantidades positivas y decimales con coma.
+- Se verificaron lint y TypeScript. En la web local se comprobó guardar cantidad y unidad, persistencia al recargar, cancelar y rechazo de cantidad cero. Los datos usados en la prueba se restauraron.
+
 ## 2026-10-06 — Acceso en el encabezado y lista unificada
 
 ### Filas compactas e iconos de acciones

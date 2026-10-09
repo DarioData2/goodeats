@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AddItemForm } from '../components/AddItemForm';
@@ -26,18 +26,15 @@ function ShoppingContent({ list, cloud, user }: {
   list: ReturnType<typeof useShoppingList>; cloud?: ReturnType<typeof useCloudShoppingList>; user: User | null;
 }) {
   const [editing, setEditing] = useState<ShoppingItem | null>(null);
-  const scroll = useRef<ScrollView>(null);
   const wide = useWindowDimensions().width >= 850;
   const purchased = list.items.filter(item => item.purchased).length;
   const disabled = list.loading || list.saving || !list.ready;
   async function submit(input: ShoppingItemInput) {
-    const saved = editing ? await list.edit(editing.id, input) : await list.add(input);
-    if (saved) setEditing(null);
-    return saved;
+    return list.add(input);
   }
   return <SafeAreaView style={styles.safe}>
     <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
           <AppHeader user={user} />
           <View style={styles.intro}><Text style={styles.kicker}>TU COCINA, ORGANIZADA</Text>
@@ -47,15 +44,17 @@ function ShoppingContent({ list, cloud, user }: {
           {list.error && <View style={styles.errorBox}><Text accessibilityRole="alert" style={styles.error}>{list.error}</Text>
             {!list.ready && <Button label="Volver a cargar" secondary disabled={list.loading} onPress={() => void list.reload()} />}</View>}
           <View style={[styles.columns, wide && styles.wide]}>
-            <View style={wide ? styles.formColumn : undefined}><AddItemForm key={`${cloud?.selectedId ?? 'local'}:${editing?.id ?? 'new'}`} editing={editing} disabled={disabled} saving={list.saving}
+            <View style={wide ? styles.formColumn : undefined}><AddItemForm key={cloud?.selectedId ?? 'local'} editing={null} disabled={disabled} saving={list.saving}
               onSubmit={submit} onCancel={() => setEditing(null)} /></View>
             <View style={styles.listColumn}>
               <View style={styles.listHeader}><Text style={styles.listTitle}>Tu lista</Text><Text style={styles.count}>{list.items.length} {list.items.length === 1 ? 'producto' : 'productos'}</Text></View>
               <View style={styles.summary}><Text style={styles.pending}>{list.items.length - purchased} pendientes</Text>
                 <Text style={styles.count}>{purchased} {purchased === 1 ? 'comprado' : 'comprados'}</Text></View>
               {list.loading ? <ActivityIndicator accessibilityLabel="Cargando lista" color={colors.primaryDark} style={{ padding: 40 }} /> :
-                list.ready && <ShoppingList items={list.items} disabled={disabled} onToggle={id => { void list.toggle(id); }}
-                  onEdit={item => { setEditing(item); scroll.current?.scrollTo({ y: 0, animated: true }); }}
+                list.ready && <ShoppingList items={list.items} disabled={disabled} editingId={editing?.id ?? null} onToggle={id => { void list.toggle(id); }}
+                  onEdit={item => setEditing(current => current?.id === item.id ? null : item)}
+                  onCancel={() => setEditing(null)}
+                  onSave={async (id, input) => { const saved = await list.edit(id, input); if (saved) setEditing(null); return saved; }}
                   onDelete={id => { void list.remove(id).then(saved => { if (saved && editing?.id === id) setEditing(null); }); }} />}
               <View style={styles.footer}>
                 <Text accessibilityLiveRegion="polite" style={styles.localNote}>{list.saving ? 'Guardando cambios…' : cloud ? list.ready ? 'Guardado en Supabase · usa Actualizar para ver cambios de otros dispositivos' : 'Supabase · selecciona o crea una lista' : list.ready ? 'Guardado en este dispositivo' : 'Almacenamiento local'}</Text>

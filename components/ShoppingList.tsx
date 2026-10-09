@@ -1,15 +1,19 @@
 import { StyleSheet, Text, View } from 'react-native';
-import type { LocalShoppingItem as Item } from '../types/shopping';
+import type { LocalShoppingItem as Item, ShoppingItemInput } from '../types/shopping';
+import { InlineItemEditor } from './InlineItemEditor';
 import { ShoppingItem } from './ShoppingItem';
 import { colors } from '../constants/theme';
-type Props = { items: Item[]; disabled: boolean; onToggle: (id: string) => void; onEdit: (item: Item) => void; onDelete: (id: string) => void };
-export function ShoppingList({ items, disabled, onToggle, onEdit, onDelete }: Props) {
+type Props = { items: Item[]; disabled: boolean; editingId: string | null; onToggle: (id: string) => void;
+  onEdit: (item: Item) => void; onDelete: (id: string) => void;
+  onSave: (id: string, input: ShoppingItemInput) => Promise<boolean>; onCancel: () => void };
+export function ShoppingList({ items, disabled, editingId, onToggle, onEdit, onDelete, onSave, onCancel }: Props) {
   if (!items.length) return <View style={styles.empty}>
     <Text style={styles.symbol}>＋</Text><Text style={styles.title}>Tu próxima compra empieza aquí</Text>
     <Text style={styles.text}>Agrega tu primer producto y lleva todo lo que necesitas en una sola lista.</Text>
   </View>;
   return <View style={styles.list}>{items.map((item, index) => <View key={item.id} style={index > 0 ? styles.separator : undefined}>
     <ShoppingItem item={item} disabled={disabled} onToggle={() => onToggle(item.id)} onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id)} />
+    {editingId === item.id && <InlineItemEditor item={item} disabled={disabled} onSave={input => onSave(item.id, input)} onCancel={onCancel} />}
   </View>)}</View>;
 }
 const styles = StyleSheet.create({
