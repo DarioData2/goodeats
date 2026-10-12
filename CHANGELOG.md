@@ -2,6 +2,9 @@
 
 ## 2026-10-11 — Acceso a Mi lista
 
+- El inicio ahora presenta las ventajas de GoodEats, un ejemplo ilustrativo y las funciones disponibles, con accesos a lista, menú y cuenta. Diseño adaptable a móvil y escritorio con los colores de la marca.
+- Se verificaron lint, TypeScript, diseño en ambas anchuras y navegación a `/lista`, `/menu` y `/login`, conservando los datos existentes.
+
 - Nueva página de inicio vacía en `/`, conservando el encabezado. El logo abre el inicio y la lista de compras se encuentra ahora en `/lista`, accesible desde «Mi lista» y desde la cuenta.
 
 - El encabezado mantiene visibles «Mi lista» y «Mi menú» en todas las páginas. «Mi lista» abre la lista de compras actual y se destaca el enlace de la sección activa.
