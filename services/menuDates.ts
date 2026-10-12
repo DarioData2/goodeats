@@ -3,7 +3,7 @@ export function weekStart(date = new Date()): string {
   monday.setDate(monday.getDate() - (monday.getDay() + 6) % 7);
   return dateKey(monday);
 }
-function dateKey(date: Date): string {
+export function dateKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 export function dayDate(week: string, offset: number): Date {

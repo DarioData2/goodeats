@@ -2,7 +2,7 @@
 
 Lista de compras manual en español creada con Expo, React Native y TypeScript. Comparte código entre web y Android. Incluye agregar, editar, eliminar, marcar/desmarcar comprados, contadores y limpieza de comprados. Cantidad opcional; admite decimales con punto o coma. Nombre obligatorio y cantidades positivas.
 
-Incluye registro e inicio de sesión con Supabase Auth y listas de compras en la nube. Sin sesión conserva el MVP local. Incluye un menú semanal manual con guardado local; no incluye recetas ni IA. Consulta [la integración de Supabase](docs/supabase.md).
+Incluye registro e inicio de sesión con Supabase Auth y listas de compras en la nube. Sin sesión conserva el MVP local. Incluye un menú semanal y recetas del día con guardado local; no incluye IA. Consulta [la integración de Supabase](docs/supabase.md).
 
 Web publicada: [goodeats.cl](https://goodeats.cl). Los cambios enviados a `main` se despliegan automáticamente en Cloudflare Pages. Consulta el [historial de cambios](CHANGELOG.md).
 
@@ -11,6 +11,12 @@ Web publicada: [goodeats.cl](https://goodeats.cl). Los cambios enviados a `main`
 El inicio `/` presenta las ventajas de GoodEats, un ejemplo de organización y las funciones de «Mi lista» y «Mi menú», con accesos a ambas páginas y a la cuenta. Explica las opciones reales de guardado local y en la nube. El logo lleva al inicio; «Mi lista» abre las compras en `/lista` y «Mi menú» abre `/menu`. El botón «Iniciar sesión» abre `/login`, donde puedes iniciar sesión, crear una cuenta y mostrar u ocultar la contraseña. «Volver a la lista» regresa a `/lista`. Con una sesión activa, el botón del encabezado muestra «Mi cuenta» y permite acceder al cierre de sesión.
 
 Los productos se presentan como filas dentro de un único panel, con separadores entre ellos. Cada fila conserva las acciones de marcar/desmarcar, editar y eliminar. Este cambio es visual: las listas locales y las de Supabase mantienen sus respectivos datos y no se fusionan automáticamente.
+
+## Mi Recetas
+
+El enlace «Mi Recetas» abre `/recetas`. Puedes escribir el plato del día, sus ingredientes y los pasos, y pulsar «Guardar receta». «Ver preparación» muestra los ingredientes y los pasos numerados para consultarlos al cocinar. Usa las flechas para consultar otras fechas; guarda o cancela el borrador antes de cambiar de día.
+
+Las recetas se guardan en este dispositivo por fecha y cuenta (o uso sin sesión), de forma independiente del menú y las compras. Esta primera versión es manual, sin generación automática ni sincronización de recetas con Supabase.
 
 ## Mi menú
 

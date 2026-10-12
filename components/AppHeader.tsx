@@ -20,6 +20,11 @@ export function AppHeader({ user, accountPage = false }: { user: User | null; ac
         <Text style={styles.menuText}>Mi menú</Text>
       </Pressable>
     </Link>
+    <Link href="/recetas" asChild>
+      <Pressable accessibilityRole="link" style={StyleSheet.flatten([styles.menuLink, pathname === '/recetas' && styles.activeLink])}>
+        <Text style={styles.menuText}>Mi Recetas</Text>
+      </Pressable>
+    </Link>
     <Link href={accountPage ? '/lista' : '/login'} asChild>
       <Pressable accessibilityRole="link" style={styles.button}>
         <Text style={styles.buttonText}>{accountPage ? 'Volver a la lista' : user ? 'Mi cuenta' : 'Iniciar sesión'}</Text>

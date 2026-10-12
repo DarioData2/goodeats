@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## 2026-10-12 — Mi Recetas
+
+- Nuevo enlace en el encabezado y ruta `/recetas` para la comida del día: nombre del plato, ingredientes y pasos de preparación.
+- Guardado local separado por fecha y cuenta, navegación entre días y opción Cancelar cambios. Vista de preparación con pasos numerados.
+- Se valida el nombre del plato cuando hay contenido, se protegen datos corruptos y se conserva el borrador ante fallos de guardado.
+- Verificación: lint, TypeScript y 18 pruebas aprobadas. En local se comprobaron acceso desde el encabezado, validación, guardar, recargar, separación entre días, vista de preparación y cancelar. Se retiró la receta de prueba.
+
 ## 2026-10-11 — Acceso a Mi lista
 
 - El inicio ahora presenta las ventajas de GoodEats, un ejemplo ilustrativo y las funciones disponibles, con accesos a lista, menú y cuenta. Diseño adaptable a móvil y escritorio con los colores de la marca.
