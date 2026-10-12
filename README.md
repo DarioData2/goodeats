@@ -8,7 +8,7 @@ Web publicada: [goodeats.cl](https://goodeats.cl). Los cambios enviados a `main`
 
 ## Acceso y lista de compras
 
-El botón «Iniciar sesión» está a la derecha del encabezado y abre la página `/login`, donde puedes iniciar sesión, crear una cuenta y mostrar u ocultar la contraseña. «Volver a la lista» regresa a `/`. Con una sesión activa, el botón del encabezado muestra «Mi cuenta» y permite acceder al cierre de sesión.
+El inicio `/` está vacío y conserva el encabezado. El logo lleva al inicio; «Mi lista» abre las compras en `/lista` y «Mi menú» abre `/menu`. El botón «Iniciar sesión» abre `/login`, donde puedes iniciar sesión, crear una cuenta y mostrar u ocultar la contraseña. «Volver a la lista» regresa a `/lista`. Con una sesión activa, el botón del encabezado muestra «Mi cuenta» y permite acceder al cierre de sesión.
 
 Los productos se presentan como filas dentro de un único panel, con separadores entre ellos. Cada fila conserva las acciones de marcar/desmarcar, editar y eliminar. Este cambio es visual: las listas locales y las de Supabase mantienen sus respectivos datos y no se fusionan automáticamente.
 
@@ -55,7 +55,8 @@ El MVP local funciona incluso sin configurar Supabase. Para guardar en la nube, 
 package.json                # Entrada principal: expo-router/entry
 src/app/
   _layout.tsx               # Proveedores, sesión y rutas
-  index.tsx                 # Ruta /: lista de compras
+  index.tsx                 # Ruta /: inicio vacío con encabezado
+  lista.tsx                 # Ruta /lista: lista de compras
   login.tsx                 # Ruta /login: acceso y cuenta
 contexts/AuthContext.tsx    # Una sesión compartida entre páginas
 components/
