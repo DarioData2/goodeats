@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 import { dateKey, dayDate } from '../services/menuDates';
 import { recipeLines } from '../services/recipeLogic';
 import { useDailyRecipe } from '../hooks/useDailyRecipe';
@@ -40,9 +40,9 @@ function RecipeDay({ user, date, onDateChange }: { user: User | null; date: stri
           </View>
           {plan.error && <View style={styles.errorBox}><Text accessibilityRole="alert" style={styles.error}>{plan.error}</Text>
             {!plan.ready && <Button label="Volver a cargar" disabled={plan.loading} onPress={() => void plan.reload()} />}</View>}
-          {plan.loading ? <ActivityIndicator accessibilityLabel="Cargando receta" color={colors.ink} style={{ padding: 40 }} /> : plan.ready && <View style={styles.card}>
+          {plan.loading ? <ActivityIndicator accessibilityLabel="Cargando receta" color={colors.primary} style={{ padding: 40 }} /> : plan.ready && <View style={styles.card}>
             {cooking ? <>
-              <View style={styles.cardHeader}><MealIcon color={colors.primaryDark} /><Text accessibilityRole="header" style={styles.title}>{plan.saved.title}</Text></View>
+              <View style={styles.cardHeader}><MealIcon color={colors.accentText} /><Text accessibilityRole="header" style={styles.title}>{plan.saved.title}</Text></View>
               <Text style={styles.label}>Ingredientes</Text>
               {recipeLines(plan.saved.ingredients).length ? recipeLines(plan.saved.ingredients).map((line, index) => <Text key={index} style={styles.body}>• {line}</Text>) : <Text style={styles.hint}>Todavía no has añadido ingredientes.</Text>}
               <Text style={styles.label}>Preparación</Text>
@@ -61,8 +61,8 @@ function RecipeDay({ user, date, onDateChange }: { user: User | null; date: stri
               <Text style={styles.hint}>Escribe cada paso en una línea nueva.</Text>
               <TextInput accessibilityLabel="Pasos de preparación" value={plan.recipe.steps} onChangeText={value => plan.update('steps', value)}
                 editable={!disabled} multiline placeholder={'Ej. Lava y corta las verduras.\nBate los huevos.'} placeholderTextColor={colors.muted} maxLength={6000} style={[styles.input, styles.multiline]} />
-              <Button label={plan.saving ? 'Guardando…' : 'Guardar receta'} secondary disabled={disabled || !plan.dirty} onPress={() => void plan.save()} />
-              {plan.dirty && <Button label="Cancelar cambios" disabled={disabled} onPress={plan.cancel} />}
+              <Button label={plan.saving ? 'Guardando…' : 'Guardar receta'} disabled={disabled || !plan.dirty} onPress={() => void plan.save()} />
+              {plan.dirty && <Button label="Cancelar cambios" secondary disabled={disabled} onPress={plan.cancel} />}
               {!!plan.saved.title && !plan.dirty && <Button label="Ver preparación" onPress={() => setCooking(true)} />}
             </>}
           </View>}
@@ -75,16 +75,16 @@ function RecipeDay({ user, date, onDateChange }: { user: User | null; date: stri
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' }, intro: { paddingVertical: 30, gap: 10 },
-  kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 1.2, color: colors.ink }, heading: { fontSize: 34, fontWeight: '700', color: colors.surface },
-  subtitle: { fontSize: 16, lineHeight: 24, color: colors.ink }, dateBar: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, backgroundColor: colors.accent, padding: 10, marginBottom: 18 },
+  kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 1.2, color: colors.ink }, heading: { fontSize: 34, fontWeight: '700', color: colors.ink },
+  subtitle: { fontSize: 16, lineHeight: 24, color: colors.ink }, dateBar: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, backgroundColor: colors.accentSoft, padding: 10, marginBottom: 18 },
   dateCopy: { flex: 1, alignItems: 'center', gap: 5 }, date: { fontSize: 15, lineHeight: 21, fontWeight: '600', color: colors.ink, textAlign: 'center' },
   arrow: { width: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }, arrowText: { fontSize: 30, color: colors.primaryDark },
-  card: { backgroundColor: colors.surface, borderRadius: 22, padding: 20, gap: 12, maxWidth: 760, width: '100%', alignSelf: 'center' },
+  card: { backgroundColor: colors.surface, borderRadius: ui.radius.card, padding: 20, gap: 12, maxWidth: 760, width: '100%', alignSelf: 'center' },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 }, title: { flexShrink: 1, fontSize: 22, fontWeight: '700', color: colors.ink },
   label: { fontSize: 15, fontWeight: '700', color: colors.ink, marginTop: 6 }, hint: { color: colors.muted, fontSize: 13, lineHeight: 20 },
-  input: { minHeight: 48, padding: 12, borderRadius: 10, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.input, color: colors.ink, fontSize: 16 },
+  input: { minHeight: 48, padding: 12, borderRadius: ui.radius.control, borderWidth: 1, borderColor: colors.controlBorder, backgroundColor: colors.input, color: colors.ink, fontSize: 16 },
   multiline: { minHeight: 115, textAlignVertical: 'top' }, body: { fontSize: 16, lineHeight: 24, color: colors.ink },
-  step: { flexDirection: 'row', gap: 10 }, stepNumber: { width: 28, height: 28, borderRadius: 8, textAlign: 'center', lineHeight: 28, backgroundColor: colors.accent, color: colors.ink, fontWeight: '700' },
+  step: { flexDirection: 'row', gap: 10 }, stepNumber: { width: 28, height: 28, borderRadius: 8, textAlign: 'center', lineHeight: 28, backgroundColor: colors.accentSoft, color: colors.ink, fontWeight: '700' },
   stepText: { flex: 1, fontSize: 16, lineHeight: 24, color: colors.ink }, note: { marginVertical: 18, fontSize: 13, lineHeight: 20, textAlign: 'center', color: colors.ink },
-  errorBox: { padding: 16, backgroundColor: colors.errorBackground, borderRadius: 14, gap: 10, marginBottom: 16 }, error: { color: colors.danger, lineHeight: 22 },
+  errorBox: { padding: 16, backgroundColor: colors.errorBackground, borderRadius: ui.radius.control, gap: 10, marginBottom: 16 }, error: { color: colors.danger, lineHeight: 22 },
 });

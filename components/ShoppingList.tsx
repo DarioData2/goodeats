@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { LocalShoppingItem as Item, ShoppingItemInput } from '../types/shopping';
 import { InlineItemEditor } from './InlineItemEditor';
 import { ShoppingItem } from './ShoppingItem';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 type Props = { items: Item[]; disabled: boolean; editingId: string | null; onToggle: (id: string) => void;
   onEdit: (item: Item) => void; onDelete: (id: string) => void;
   onSave: (id: string, input: ShoppingItemInput) => Promise<boolean>; onCancel: () => void };
@@ -17,9 +17,9 @@ export function ShoppingList({ items, disabled, editingId, onToggle, onEdit, onD
   </View>)}</View>;
 }
 const styles = StyleSheet.create({
-  list: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 18, overflow: 'hidden' },
+  list: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, overflow: 'hidden' },
   separator: { borderTopWidth: 1, borderTopColor: colors.border },
-  empty: { backgroundColor: colors.surface, borderWidth: 1, borderStyle: 'dashed', borderColor: colors.border, borderRadius: 24, padding: 32, alignItems: 'center', gap: 14 },
-  symbol: { fontSize: 32, color: colors.ink, backgroundColor: colors.accent, width: 64, height: 64, textAlign: 'center', lineHeight: 64, borderRadius: 20 },
+  empty: { backgroundColor: colors.surface, borderWidth: 1, borderStyle: 'dashed', borderColor: colors.border, borderRadius: ui.radius.card, padding: 32, alignItems: 'center', gap: 14 },
+  symbol: { fontSize: 32, color: colors.ink, backgroundColor: colors.primarySoft, width: 64, height: 64, textAlign: 'center', lineHeight: 64, borderRadius: 20 },
   title: { color: colors.ink, fontSize: 19, fontWeight: '600', textAlign: 'center' }, text: { color: colors.muted, fontSize: 15, lineHeight: 23, textAlign: 'center', maxWidth: 340 },
 });

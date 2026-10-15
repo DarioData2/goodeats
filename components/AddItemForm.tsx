@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
 import type { LocalShoppingItem as ShoppingItem, ShoppingItemInput } from '../types/shopping';
 import { UNITS } from '../constants/units';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 import { parseItemInput } from '../services/shoppingLogic';
 import { Button } from './Button';
 type Props = {
@@ -36,7 +36,7 @@ export function AddItemForm({ editing, disabled, saving, onSubmit, onCancel }: P
       {UNITS.map(value => <Pressable key={value} accessibilityRole="radio" accessibilityLabel={value}
         accessibilityState={{ checked: unit === value, disabled }} disabled={disabled} onPress={() => setUnit(value)}
         style={[styles.chip, unit === value && styles.selected]}>
-        <Text style={[styles.chipText, unit === value && { color: colors.onPrimary }]}>{value}</Text>
+        <Text style={[styles.chipText, unit === value && { color: colors.onPrimary }]}>{unit === value ? '✓ ' : ''}{value}</Text>
       </Pressable>)}
     </View>
     {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
@@ -46,13 +46,13 @@ export function AddItemForm({ editing, disabled, saving, onSubmit, onCancel }: P
   </View>;
 }
 const styles = StyleSheet.create({
-  card: { backgroundColor: colors.surface, borderRadius: 24, padding: 24, borderWidth: 1, borderColor: colors.border, gap: 12 },
+  card: { backgroundColor: colors.surface, borderRadius: ui.radius.card, padding: 24, borderWidth: 1, borderColor: colors.border, gap: 12 },
   eyebrow: { fontSize: 11, letterSpacing: 1.5, fontWeight: '700', color: colors.primaryDark },
   title: { color: colors.ink, fontSize: 23, fontWeight: '700', marginBottom: 8 },
   label: { fontSize: 14, fontWeight: '600', color: colors.ink, marginTop: 4 }, optional: { fontWeight: '400', color: colors.muted },
-  input: { minHeight: 50, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 14, fontSize: 16, color: colors.ink, backgroundColor: colors.input },
+  input: { minHeight: 50, borderWidth: 1, borderColor: colors.controlBorder, borderRadius: ui.radius.control, padding: 14, fontSize: 16, color: colors.ink, backgroundColor: colors.input },
   units: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
-  chip: { borderWidth: 1, borderColor: colors.border, minHeight: 44, paddingHorizontal: 13, justifyContent: 'center', borderRadius: 12 },
-  selected: { backgroundColor: colors.accent, borderColor: colors.accent }, chipText: { fontSize: 14, color: colors.muted },
+  chip: { borderWidth: 1, borderColor: colors.controlBorder, minHeight: 44, paddingHorizontal: 13, justifyContent: 'center', borderRadius: ui.radius.control },
+  selected: { backgroundColor: colors.primary, borderColor: colors.primary }, chipText: { fontSize: 14, color: colors.muted },
   error: { color: colors.danger, fontSize: 14 }, hint: { textAlign: 'center', color: colors.muted, fontSize: 12, marginTop: 4 },
 });

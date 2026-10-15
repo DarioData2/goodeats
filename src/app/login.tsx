@@ -24,6 +24,6 @@ export default function LoginRoute() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' }, intro: { paddingVertical: 32, gap: 10 },
-  title: { fontSize: 32, fontWeight: '700', color: colors.surface }, subtitle: { color: colors.ink, fontSize: 16 },
+  title: { fontSize: 32, fontWeight: '700', color: colors.ink }, subtitle: { color: colors.ink, fontSize: 16 },
   form: { width: '100%', maxWidth: 480, alignSelf: 'center' },
 });

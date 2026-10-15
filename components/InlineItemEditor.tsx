@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 import { UNITS } from '../constants/units';
 import { parseItemInput } from '../services/shoppingLogic';
 import type { LocalShoppingItem, ShoppingItemInput } from '../types/shopping';
@@ -34,7 +34,7 @@ export function InlineItemEditor({ item, disabled, onSave, onCancel }: Props) {
     <View style={styles.units}>{UNITS.map(value => <Pressable key={value} accessibilityRole="radio"
       accessibilityLabel={`${value} para ${item.name}`} accessibilityState={{ checked: unit === value, disabled }}
       disabled={disabled} onPress={() => setUnit(value)} style={[styles.chip, unit === value && styles.selected]}>
-      <Text style={styles.chipText}>{value}</Text>
+      <Text style={[styles.chipText, unit === value && { color: colors.onPrimary }]}>{unit === value ? '✓ ' : ''}{value}</Text>
     </Pressable>)}</View>
     {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
     <View style={styles.buttons}>
@@ -46,12 +46,12 @@ export function InlineItemEditor({ item, disabled, onSave, onCancel }: Props) {
 const styles = StyleSheet.create({
   editor: { padding: 14, gap: 8, backgroundColor: colors.primarySoft },
   label: { fontSize: 13, fontWeight: '600', color: colors.ink },
-  input: { minHeight: 44, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: colors.border,
-    borderRadius: 10, backgroundColor: colors.surface, color: colors.ink, fontSize: 16 },
+  input: { minHeight: 44, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: colors.controlBorder,
+    borderRadius: ui.radius.control, backgroundColor: colors.surface, color: colors.ink, fontSize: 16 },
   units: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { minHeight: 44, paddingHorizontal: 12, justifyContent: 'center', borderRadius: 10,
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  selected: { backgroundColor: colors.accent, borderColor: colors.accent },
+  chip: { minHeight: 44, paddingHorizontal: 12, justifyContent: 'center', borderRadius: ui.radius.control,
+    borderWidth: 1, borderColor: colors.controlBorder, backgroundColor: colors.surface },
+  selected: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipText: { fontSize: 14, color: colors.ink },
   buttons: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }, button: { flex: 1, minWidth: 110 },
   error: { color: colors.danger, fontSize: 14 },

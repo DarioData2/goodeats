@@ -1,8 +1,8 @@
 import type { User } from '@supabase/supabase-js';
 import { Link } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 import { AppHeader } from './AppHeader';
 import { MealIcon } from './MealIcon';
 
@@ -15,7 +15,7 @@ const benefits = [
 function HomeLink({ href, label, outline = false }: { href: '/lista' | '/menu' | '/login'; label: string; outline?: boolean }) {
   return <Link href={href} asChild><Pressable accessibilityRole="link"
     style={StyleSheet.flatten([styles.link, outline && styles.outline])}>
-    <Text style={styles.linkText}>{label}</Text>
+    <Text style={[styles.linkText, outline && styles.outlineText]}>{label}</Text>
   </Pressable></Link>;
 }
 
@@ -28,7 +28,7 @@ export function HomeScreen({ user }: { user: User | null }) {
         <View style={[styles.hero, wide && styles.heroWide]}>
           <View style={styles.heroCopy}>
             <Text style={styles.kicker}>BIENVENIDO A GOODEATS</Text>
-            <Text accessibilityRole="header" style={[styles.heading, wide && styles.headingWide]}>Menos vueltas.{ '\n' }<Text style={styles.yellow}>Más buenas comidas.</Text></Text>
+            <Text accessibilityRole="header" style={[styles.heading, wide && styles.headingWide]}>Menos vueltas.{ '\n' }<Text style={styles.highlight}>Más buenas comidas.</Text></Text>
             <Text style={styles.subtitle}>Organiza tus compras y planea tus almuerzos. Dale un poco de orden a tu semana y disfruta de cocinar.</Text>
             <View style={styles.heroActions}>
               <HomeLink href="/lista" label="Crear mi lista" />
@@ -37,7 +37,8 @@ export function HomeScreen({ user }: { user: User | null }) {
             <Text style={styles.small}>Puedes empezar sin crear una cuenta.</Text>
           </View>
           <View style={[styles.preview, wide && styles.previewWide]}>
-            <View style={styles.previewHeader}><Text style={styles.previewKicker}>UNA SEMANA CON ORDEN</Text><MealIcon color={colors.primaryDark} /></View>
+            <Image source={require('../assets/home-salad.jpg')} accessibilityLabel="Ensalada fresca con huevo, verduras y frutos secos; fotografía ilustrativa" resizeMode="cover" style={styles.foodPhoto} />
+            <View style={styles.previewHeader}><Text style={styles.previewKicker}>UNA SEMANA CON ORDEN</Text><View style={styles.foodIcon}><MealIcon color={colors.onAccent} /></View></View>
             <Text style={styles.previewTitle}>¿Qué cocinamos?</Text>
             <View style={styles.exampleMeal}><Text style={styles.day}>LUNES · ALMUERZO</Text><Text style={styles.dish}>Porotos con riendas</Text></View>
             <View style={styles.exampleMeal}><Text style={styles.day}>MARTES · ALMUERZO</Text><Text style={styles.dish}>Tortilla con ensalada</Text></View>
@@ -69,7 +70,7 @@ export function HomeScreen({ user }: { user: User | null }) {
             <HomeLink href="/lista" label="Abrir Mi lista" />
           </View>
           <View style={[styles.option, styles.menuOption]}>
-            <View style={styles.optionTop}><Text style={styles.optionNumber}>02 / SEMANA</Text><MealIcon color={colors.primaryDark} /></View>
+            <View style={styles.optionTop}><Text style={styles.optionNumber}>02 / SEMANA</Text><MealIcon color={colors.accentText} /></View>
             <Text accessibilityRole="header" style={styles.optionTitle}>Mi menú</Text>
             <Text style={styles.body}>Resuelve qué prepararás para el almuerzo, de lunes a domingo.</Text>
             <View style={styles.features}>
@@ -96,28 +97,30 @@ const styles = StyleSheet.create({
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' },
   hero: { paddingTop: 36, paddingBottom: 32, gap: 28 }, heroWide: { flexDirection: 'row', alignItems: 'center', gap: 40, paddingVertical: 48 },
   heroCopy: { flex: 1, gap: 18 }, kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 1.6, color: colors.ink },
-  heading: { fontSize: 38, lineHeight: 44, fontWeight: '800', letterSpacing: -1.3, color: colors.surface },
-  headingWide: { fontSize: 54, lineHeight: 60 }, yellow: { color: colors.accent }, subtitle: { fontSize: 17, lineHeight: 26, color: colors.ink, maxWidth: 510 },
+  heading: { fontSize: 38, lineHeight: 44, fontWeight: '800', letterSpacing: -1.3, color: colors.ink },
+  headingWide: { fontSize: 54, lineHeight: 60 }, highlight: { color: colors.primary }, subtitle: { fontSize: 17, lineHeight: 26, color: colors.muted, maxWidth: 510 },
   heroActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, small: { fontSize: 13, color: colors.ink },
-  link: { minHeight: 48, backgroundColor: colors.accent, borderRadius: 14, paddingHorizontal: 18, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
-  outline: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.ink }, linkText: { fontSize: 14, fontWeight: '700', color: colors.ink },
-  preview: { backgroundColor: colors.surface, padding: 22, borderRadius: 24, gap: 12 }, previewWide: { width: 340 },
+  link: { minHeight: 48, backgroundColor: colors.primary, borderRadius: ui.radius.control, paddingHorizontal: 18, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
+  outline: { backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: colors.primarySoft }, outlineText: { color: colors.primary }, linkText: { fontSize: 14, fontWeight: '700', color: colors.onPrimary },
+  preview: { backgroundColor: colors.surface, padding: 20, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, gap: 12 }, previewWide: { width: 380 },
+  foodPhoto: { width: '100%', height: 200, borderRadius: ui.radius.control, backgroundColor: colors.accentSoft },
+  foodIcon: { padding: ui.spacing.small, borderRadius: ui.radius.control, backgroundColor: colors.accent },
   previewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   previewKicker: { fontSize: 10, fontWeight: '700', letterSpacing: 1.2, color: colors.primaryDark }, previewTitle: { fontSize: 23, fontWeight: '700', color: colors.ink },
-  exampleMeal: { backgroundColor: colors.primarySoft, padding: 12, borderRadius: 12, gap: 5 }, day: { fontSize: 10, fontWeight: '700', color: colors.primaryDark, letterSpacing: 0.7 },
+  exampleMeal: { backgroundColor: colors.accentSoft, padding: 12, borderRadius: ui.radius.control, gap: 5 }, day: { fontSize: 10, fontWeight: '700', color: colors.accentText, letterSpacing: 0.7 },
   dish: { fontSize: 16, fontWeight: '600', color: colors.ink }, previewListTitle: { fontSize: 13, fontWeight: '700', color: colors.ink, marginTop: 6 },
   previewRow: { flexDirection: 'row', alignItems: 'center', gap: 10 }, previewCheck: { width: 20, height: 20, borderRadius: 6, backgroundColor: colors.primaryDark, color: colors.surface, textAlign: 'center', fontWeight: '700' },
   emptyCheck: { width: 20, height: 20, borderWidth: 1, borderColor: colors.controlBorder, borderRadius: 6 }, previewItem: { flex: 1, fontSize: 14, color: colors.ink }, quantity: { fontSize: 12, color: colors.muted },
   exampleNote: { fontSize: 11, lineHeight: 17, color: colors.muted, marginTop: 4 },
-  benefits: { backgroundColor: colors.accent, borderRadius: 22, padding: 22, gap: 24 }, benefitsWide: { flexDirection: 'row', gap: 28 },
+  benefits: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 24, gap: 24 }, benefitsWide: { flexDirection: 'row', gap: 28 },
   benefit: { flex: 1, gap: 7 }, number: { fontSize: 11, fontWeight: '700', color: colors.primaryDark }, benefitTitle: { fontSize: 18, fontWeight: '700', color: colors.ink },
   body: { fontSize: 15, lineHeight: 23, color: colors.ink },
-  sectionIntro: { paddingTop: 36, paddingBottom: 20, gap: 10 }, sectionTitle: { fontSize: 26, lineHeight: 33, fontWeight: '700', color: colors.surface },
+  sectionIntro: { paddingTop: 36, paddingBottom: 20, gap: 10 }, sectionTitle: { fontSize: 26, lineHeight: 33, fontWeight: '700', color: colors.ink },
   options: { gap: 16 }, optionsWide: { flexDirection: 'row', alignItems: 'stretch' },
-  option: { flex: 1, backgroundColor: colors.surface, borderRadius: 22, padding: 22, gap: 14 }, menuOption: { backgroundColor: colors.primarySoft },
+  option: { flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 24, gap: 14 }, menuOption: { backgroundColor: colors.surface },
   optionTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, optionNumber: { fontSize: 11, letterSpacing: 1, fontWeight: '700', color: colors.primaryDark },
   optionSymbol: { fontSize: 22, color: colors.primaryDark }, optionTitle: { fontSize: 28, fontWeight: '700', color: colors.ink },
   features: { gap: 9 }, feature: { fontSize: 14, lineHeight: 22, color: colors.ink }, storageNote: { flexGrow: 1, fontSize: 12, lineHeight: 19, color: colors.muted },
-  account: { marginTop: 24, borderWidth: 1, borderColor: '#FFFFFF88', borderRadius: 22, padding: 22, gap: 18 }, accountWide: { flexDirection: 'row', alignItems: 'center' },
+  account: { marginTop: 24, backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 24, gap: 18 }, accountWide: { flexDirection: 'row', alignItems: 'center' },
   accountCopy: { flex: 1, gap: 7 }, accountTitle: { fontSize: 20, fontWeight: '700', color: colors.ink }, footer: { fontSize: 12, lineHeight: 19, textAlign: 'center', color: colors.ink, paddingVertical: 28 },
 });

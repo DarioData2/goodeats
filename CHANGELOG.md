@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## 2026-10-14 — Identidad visual oficial (local)
+
+- Tema central con morado `#6D28D9`, naranjo `#FF7A18`, texto `#111827`, fondo `#F9FAFB` y blanco. Tonos derivados para estados, sin amarillo ni lila independientes.
+- Botones primarios, secundarios y deshabilitados; controles y navegación activa distinguibles por marcador y color. Bordes, radios, tarjetas y campos coherentes en las pantallas existentes.
+- Inicio con fotografía gastronómica CC0 local (76 KB). Encabezado adaptable a móvil. No se añadieron dependencias ni se cambió la lógica de datos o la configuración remota.
+- Verificación visual móvil/escritorio, contrastes AA de los pares utilizados, lint, TypeScript, 24 pruebas y exportación web. Detalles y limitación del logo en `docs/visual-identity.md`.
+
 ## 2026-10-14 — Menús y recetas en Supabase
 
 - Guardado por cuenta y semana/fecha en nuevas tablas `weekly_menus` y `daily_recipes`, con RLS por propietario y validación de sesión. Sin sesión se mantiene el almacenamiento local.

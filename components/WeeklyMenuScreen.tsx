@@ -2,7 +2,7 @@ import type { User } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 import { useWeeklyMenu } from '../hooks/useWeeklyMenu';
 import { DAYS } from '../services/menuStorage';
 import { dayDate, shiftWeek, shortDate, weekStart } from '../services/menuDates';
@@ -64,7 +64,7 @@ function WeekContent({ user, week, onWeekChange }: { user: User | null; week: st
             <Text accessibilityRole="alert" style={styles.error}>{plan.error}</Text>
             {!plan.ready && <Button label="Volver a cargar" disabled={plan.loading} onPress={() => void plan.reload()} />}
           </View>}
-          {plan.loading ? <ActivityIndicator accessibilityLabel="Cargando menú" color={colors.ink} style={styles.loader} /> : plan.ready && <>
+          {plan.loading ? <ActivityIndicator accessibilityLabel="Cargando menú" color={colors.primary} style={styles.loader} /> : plan.ready && <>
             <View style={styles.days}>{DAYS.map((day, dayIndex) => <View key={day} style={styles.day}>
               <View style={styles.dayHeader}><Text style={styles.dayName}>{day}</Text><Text style={styles.label}>{shortDate(dayDate(week, dayIndex))}</Text></View>
                 <Text style={styles.label}>Almuerzo</Text>
@@ -74,8 +74,8 @@ function WeekContent({ user, week, onWeekChange }: { user: User | null; week: st
                   maxLength={240} multiline style={styles.input} />
             </View>)}</View>
             <View style={styles.footer}>
-              <Button label={plan.saving ? 'Guardando…' : 'Guardar menú'} secondary disabled={disabled || !plan.dirty} onPress={() => void plan.save()} />
-              {plan.dirty && <Button label="Cancelar cambios" disabled={disabled} onPress={plan.cancel} />}
+              <Button label={plan.saving ? 'Guardando…' : 'Guardar menú'} disabled={disabled || !plan.dirty} onPress={() => void plan.save()} />
+              {plan.dirty && <Button label="Cancelar cambios" secondary disabled={disabled} onPress={plan.cancel} />}
               <Text accessibilityLiveRegion="polite" style={styles.note}>{plan.dirty ? 'Cambios sin guardar · pulsa Guardar menú antes de salir.' : user ? 'Menú cargado desde Supabase.' : 'Menú guardado en este dispositivo.'}</Text>
               <Text style={styles.note}>Puedes volver y cambiar tus platos cuando quieras.</Text>
             </View>
@@ -89,25 +89,25 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' }, intro: { paddingVertical: 30, gap: 10 },
   kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 2, color: colors.ink },
-  heading: { fontSize: 34, fontWeight: '700', color: colors.surface, letterSpacing: -1 },
+  heading: { fontSize: 34, fontWeight: '700', color: colors.ink, letterSpacing: -1 },
   subtitle: { fontSize: 16, lineHeight: 24, color: colors.ink },
-  summary: { backgroundColor: colors.accent, borderRadius: 14, padding: 16, gap: 4, marginBottom: 18 },
+  summary: { backgroundColor: colors.accentSoft, borderRadius: ui.radius.control, padding: 16, gap: 4, marginBottom: 18 },
   summaryText: { fontSize: 15, fontWeight: '700', color: colors.ink }, note: { fontSize: 13, lineHeight: 20, color: colors.ink },
-  days: { gap: 12 }, day: { borderRadius: 18, backgroundColor: colors.surface, padding: 16, gap: 12 },
-  dayName: { fontSize: 18, fontWeight: '700', color: colors.primaryDark },
+  days: { gap: 12 }, day: { borderRadius: ui.radius.card, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 12 },
+  dayName: { fontSize: 18, fontWeight: '700', color: colors.ink },
   dayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  calendar: { backgroundColor: colors.surface, padding: 12, borderRadius: 18, marginBottom: 18, gap: 10 },
+  calendar: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, padding: 12, borderRadius: ui.radius.card, marginBottom: 18, gap: 10 },
   calendarHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   range: { flex: 1, alignItems: 'center', gap: 4 }, rangeText: { color: colors.ink, fontSize: 14, fontWeight: '700', textAlign: 'center' },
   arrow: { width: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   arrowText: { color: colors.primaryDark, fontSize: 30 }, dimmed: { opacity: 0.3 },
-  calendarDays: { flexDirection: 'row', gap: 4 }, calendarDay: { flex: 1, alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: 10, paddingVertical: 8, gap: 4 },
+  calendarDays: { flexDirection: 'row', gap: 4 }, calendarDay: { flex: 1, alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: ui.radius.control, paddingVertical: 8, gap: 4 },
   calendarLabel: { fontSize: 11, color: colors.muted }, calendarNumber: { fontSize: 16, fontWeight: '700', color: colors.ink },
   plannedDay: { backgroundColor: colors.primaryDark }, plannedText: { color: colors.surface }, mealIcon: { height: 20 },
   label: { fontSize: 13, fontWeight: '600', color: colors.ink },
-  input: { minHeight: 48, textAlignVertical: 'top', padding: 12, borderWidth: 1, borderColor: colors.border,
-    borderRadius: 10, backgroundColor: colors.input, fontSize: 16, color: colors.ink },
+  input: { minHeight: 48, textAlignVertical: 'top', padding: 12, borderWidth: 1, borderColor: colors.controlBorder,
+    borderRadius: ui.radius.control, backgroundColor: colors.input, fontSize: 16, color: colors.ink },
   footer: { gap: 10, marginTop: 20, marginBottom: 16 }, loader: { padding: 40 },
-  errorBox: { backgroundColor: colors.errorBackground, borderRadius: 14, padding: 16, gap: 10, marginBottom: 16 },
+  errorBox: { backgroundColor: colors.errorBackground, borderRadius: ui.radius.control, padding: 16, gap: 10, marginBottom: 16 },
   error: { color: colors.danger, lineHeight: 22 },
 });

@@ -13,7 +13,7 @@ export default function RootLayout() {
 function SessionRoutes() {
   const auth = useAccount();
   if (auth.loading) return <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-    <ActivityIndicator accessibilityLabel="Recuperando sesión" color={colors.ink} />
+    <ActivityIndicator accessibilityLabel="Recuperando sesión" color={colors.primary} />
   </View>;
   return <View style={{ flex: 1 }}>
     {auth.error && <Text accessibilityRole="alert" style={{ padding: 16, color: colors.danger, backgroundColor: colors.surface }}>{auth.error}</Text>}

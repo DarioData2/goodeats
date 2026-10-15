@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AddItemForm } from '../components/AddItemForm';
 import { ShoppingList } from '../components/ShoppingList';
 import { Button } from '../components/Button';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 import { useShoppingList } from '../hooks/useShoppingList';
 import { useCloudShoppingList } from '../hooks/useCloudShoppingList';
 import { AppHeader } from './AppHeader';
@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' },
   intro: { paddingVertical: 32, gap: 10 }, kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 2, color: colors.ink },
-  heading: { fontSize: 44, fontWeight: '700', letterSpacing: -1.4, color: colors.surface }, subtitle: { fontSize: 16, color: colors.ink },
+  heading: { fontSize: 44, fontWeight: '700', letterSpacing: -1.4, color: colors.ink }, subtitle: { fontSize: 16, color: colors.ink },
   columns: { gap: 28 }, wide: { flexDirection: 'row', alignItems: 'flex-start' }, formColumn: { width: 340 }, listColumn: { flex: 1, gap: 16 },
-  listHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }, listTitle: { fontSize: 24, fontWeight: '700', color: colors.surface },
-  count: { fontSize: 13, color: colors.ink }, summary: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.accent, padding: 16, borderRadius: 14, gap: 10 },
+  listHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }, listTitle: { fontSize: 24, fontWeight: '700', color: colors.ink },
+  count: { fontSize: 13, color: colors.ink }, summary: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.primarySoft, padding: 16, borderRadius: ui.radius.control, gap: 10 },
   pending: { fontSize: 13, fontWeight: '600', color: colors.ink }, footer: { gap: 14, marginTop: 4 }, localNote: { color: colors.ink, fontSize: 12 },
   bottom: { color: colors.ink, fontSize: 12, textAlign: 'center', marginTop: 40, marginBottom: 12 },
-  errorBox: { padding: 16, backgroundColor: colors.errorBackground, borderRadius: 14, marginBottom: 20, gap: 12 }, error: { color: colors.danger, lineHeight: 22 },
+  errorBox: { padding: 16, backgroundColor: colors.errorBackground, borderRadius: ui.radius.control, marginBottom: 20, gap: 12 }, error: { color: colors.danger, lineHeight: 22 },
 });
 

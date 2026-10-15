@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { User } from '@supabase/supabase-js';
 import { signIn, signOut, signUp } from '../services/authService';
 import { supabaseConfigurationError } from '../lib/supabase';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 import { Button } from './Button';
 
 export function AccountPanel({ user, disabled }: { user: User | null; disabled: boolean }) {
@@ -71,11 +71,11 @@ export function AccountPanel({ user, disabled }: { user: User | null; disabled: 
   </View>;
 }
 const styles = StyleSheet.create({
-  card: { backgroundColor: colors.surface, borderRadius: 18, padding: 20, gap: 12, marginBottom: 24 },
+  card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 20, gap: 12, marginBottom: 24 },
   title: { fontSize: 17, fontWeight: '700', color: colors.ink }, note: { color: colors.muted, lineHeight: 21 },
   form: { gap: 12, maxWidth: 440, width: '100%' },
-  input: { minHeight: 50, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 14, fontSize: 16, color: colors.ink, backgroundColor: colors.input },
-  passwordField: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: 12, backgroundColor: colors.input },
+  input: { minHeight: 50, borderWidth: 1, borderColor: colors.controlBorder, borderRadius: ui.radius.control, padding: 14, fontSize: 16, color: colors.ink, backgroundColor: colors.input },
+  passwordField: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.controlBorder, borderRadius: ui.radius.control, backgroundColor: colors.input },
   passwordInput: { flex: 1, minWidth: 0, minHeight: 50, padding: 14, fontSize: 16, color: colors.ink },
   passwordToggle: { minHeight: 48, paddingHorizontal: 14, justifyContent: 'center', alignItems: 'center' },
   passwordToggleText: { color: colors.primaryDark, fontSize: 14, fontWeight: '700' },

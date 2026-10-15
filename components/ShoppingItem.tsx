@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ActionIcon } from './ActionIcon';
 import type { LocalShoppingItem as Item } from '../types/shopping';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 type Props = { item: Item; disabled: boolean; onToggle: () => void; onEdit: () => void; onDelete: () => void };
 export function ShoppingItem({ item, disabled, onToggle, onEdit, onDelete }: Props) {
   const details = [item.quantity?.toLocaleString('es-CL'), item.unit].filter(Boolean).join(' ');
@@ -30,8 +30,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, backgroundColor: colors.surface, gap: 6 },
   purchased: { backgroundColor: colors.primarySoft }, checkTarget: { width: 44, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   checkbox: { width: 25, height: 25, borderWidth: 1.5, borderColor: colors.controlBorder, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  checked: { backgroundColor: colors.primaryDark, borderColor: colors.primaryDark }, checkText: { color: '#FFFFFF', fontSize: 17, fontWeight: '700' },
+  checked: { backgroundColor: colors.primaryDark, borderColor: colors.primaryDark }, checkText: { color: colors.onPrimary, fontSize: 17, fontWeight: '700' },
   description: { flex: 1, minWidth: 0, gap: 2 }, name: { color: colors.ink, fontSize: 16, fontWeight: '600' },
   strike: { textDecorationLine: 'line-through', color: colors.muted }, details: { color: colors.muted, fontSize: 13 },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: 2 }, action: { width: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center', borderRadius: 10 },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: 2 }, action: { width: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center', borderRadius: ui.radius.control },
 });

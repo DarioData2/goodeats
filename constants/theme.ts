@@ -1,6 +1,13 @@
 export const colors = {
-  background: '#1ABFB5', surface: '#FFFFFF', ink: '#123E3B', muted: '#526E6C',
-  primary: '#1ABFB5', primaryDark: '#08766F', primarySoft: '#E7F8F6',
-  accent: '#FFDE59', onPrimary: '#123E3B', border: '#CBE6E3',
-  input: '#F5FBFA', controlBorder: '#789D99', danger: '#A43636', errorBackground: '#FCECEC',
+  background: '#F9FAFB', surface: '#FFFFFF', ink: '#111827', muted: '#4B5563',
+  primary: '#6D28D9', primaryDark: '#5B21B6', primarySoft: '#F3EEFC',
+  accent: '#FF7A18', accentSoft: '#FFF1E7', accentText: '#9A3D00',
+  onPrimary: '#FFFFFF', onAccent: '#111827', border: '#E5E7EB',
+  input: '#FFFFFF', controlBorder: '#6B7280', danger: '#B42318', errorBackground: '#FEF3F2',
+  disabled: '#E5E7EB', onDisabled: '#4B5563', transparent: 'transparent',
+};
+
+export const ui = {
+  radius: { card: 20, control: 12 },
+  spacing: { small: 8, medium: 16, large: 24 },
 };

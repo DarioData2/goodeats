@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button } from './Button';
-import { colors } from '../constants/theme';
+import { colors, ui } from '../constants/theme';
 import type { useCloudShoppingList } from '../hooks/useCloudShoppingList';
 
 export function CloudListControls({ list }: { list: ReturnType<typeof useCloudShoppingList> }) {
@@ -13,7 +13,7 @@ export function CloudListControls({ list }: { list: ReturnType<typeof useCloudSh
       accessibilityRole="radio" accessibilityLabel={`Lista ${value.name}`}
       accessibilityState={{ checked: value.id === list.selectedId, disabled }} disabled={disabled}
       onPress={() => void list.selectList(value.id)} style={[styles.option, value.id === list.selectedId && styles.selected]}>
-      <Text style={styles.text}>{value.name}</Text>
+      <Text style={[styles.text, value.id === list.selectedId && { color: colors.onPrimary }]}>{value.id === list.selectedId ? '✓ ' : ''}{value.name}</Text>
     </Pressable>)}</View>
     {!list.loading && list.lists.length === 0 && <Text style={styles.text}>Crea tu primera lista para empezar a guardar productos en la nube.</Text>}
     <TextInput accessibilityLabel="Nombre de la nueva lista" value={name} onChangeText={setName}
@@ -28,9 +28,9 @@ export function CloudListControls({ list }: { list: ReturnType<typeof useCloudSh
   </View>;
 }
 const styles = StyleSheet.create({
-  card: { padding: 20, borderRadius: 18, backgroundColor: colors.surface, gap: 12, marginBottom: 24 },
+  card: { padding: 20, borderRadius: ui.radius.card, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, gap: 12, marginBottom: 24 },
   title: { color: colors.ink, fontSize: 17, fontWeight: '700' }, text: { color: colors.ink }, note: { color: colors.muted, lineHeight: 21 },
-  options: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, option: { padding: 14, borderRadius: 12, backgroundColor: colors.primarySoft },
-  selected: { backgroundColor: colors.accent },
-  input: { padding: 14, minHeight: 50, borderRadius: 12, borderWidth: 1, borderColor: colors.border, color: colors.ink, backgroundColor: colors.input },
+  options: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, option: { padding: 14, borderRadius: ui.radius.control, backgroundColor: colors.primarySoft },
+  selected: { backgroundColor: colors.primary },
+  input: { padding: 14, minHeight: 50, borderRadius: ui.radius.control, borderWidth: 1, borderColor: colors.controlBorder, color: colors.ink, backgroundColor: colors.input },
 });
