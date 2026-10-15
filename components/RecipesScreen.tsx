@@ -26,7 +26,11 @@ function RecipeDay({ user, date, onDateChange }: { user: User | null; date: stri
           <AppHeader user={user} />
           <View style={styles.intro}><Text style={styles.kicker}>DE LA IDEA AL PLATO</Text>
             <Text accessibilityRole="header" style={styles.heading}>Mi Recetas</Text>
-            <Text style={styles.subtitle}>Guarda cómo preparar la comida del día y consulta la receta al cocinar.</Text></View>
+            <Text style={styles.subtitle}>Guarda cómo preparar la comida del día y consulta la receta al cocinar.</Text>
+            <Text style={styles.hint}>{user ? 'Tus recetas se guardan en tu cuenta de Supabase.' : 'Sin sesión, las recetas se guardan en este dispositivo.'}</Text>
+            {user && <Button label="Actualizar desde Supabase" disabled={disabled || plan.dirty} onPress={() => { setCooking(false); void plan.reload(); }} />}
+            {user && <Button label="Recuperar receta sin sesión" secondary disabled={disabled || plan.dirty} onPress={() => { setCooking(false); void plan.importLocal(); }} />}
+            {user && <Text style={styles.hint}>Recuperar carga la receta local como borrador. Revísala antes de guardar y reemplazar la de esta fecha.</Text>}</View>
           <View style={styles.dateBar}>
             <Pressable accessibilityRole="button" accessibilityLabel="Día anterior" disabled={disabled || plan.dirty}
               onPress={() => onDateChange(dateKey(dayDate(date, -1)))} style={styles.arrow}><Text style={styles.arrowText}>‹</Text></Pressable>
@@ -62,7 +66,7 @@ function RecipeDay({ user, date, onDateChange }: { user: User | null; date: stri
               {!!plan.saved.title && !plan.dirty && <Button label="Ver preparación" onPress={() => setCooking(true)} />}
             </>}
           </View>}
-          <Text accessibilityLiveRegion="polite" style={styles.note}>{plan.dirty ? 'Cambios sin guardar. Guarda o cancela antes de cambiar de día.' : plan.ready ? 'Recetas guardadas en este dispositivo, por día.' : ''}</Text>
+          <Text accessibilityLiveRegion="polite" style={styles.note}>{plan.dirty ? 'Cambios sin guardar. Guarda o cancela antes de cambiar de día.' : plan.ready ? user ? 'Receta cargada desde Supabase.' : 'Recetas guardadas en este dispositivo, por día.' : ''}</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

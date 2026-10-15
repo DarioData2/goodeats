@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { emptyMenu, menuStorage } from '../services/menuStorage';
+import { loadMenu, saveMenu } from '../services/mealPlanningService';
 
 export function useWeeklyMenu(owner: string, week: string) {
   const [menu, setMenu] = useState(emptyMenu);
@@ -15,7 +16,7 @@ export function useWeeklyMenu(owner: string, week: string) {
     if (busy.current) return;
     busy.current = true; setLoading(true); setError(null);
     try {
-      const saved = await menuStorage.load(owner, week);
+      const saved = await loadMenu(owner, week);
       if (mounted.current) { setMenu(saved); setSavedMenu(saved); setReady(true); setDirty(false); }
     } catch {
       if (mounted.current) { setReady(false); setError('No pudimos cargar tu menú. Los datos guardados se conservaron.'); }
@@ -35,11 +36,21 @@ export function useWeeklyMenu(owner: string, week: string) {
     busy.current = true; setSaving(true); setError(null);
     try {
       const next = menu.map(day => day.map(meal => meal.trim()));
-      await menuStorage.save(owner, week, next);
+      await saveMenu(owner, week, next);
       if (mounted.current) { setMenu(next); setSavedMenu(next); setDirty(false); }
     } catch {
       if (mounted.current) setError('No pudimos guardar el menú. Conservamos lo que escribiste; vuelve a intentarlo.');
     } finally { busy.current = false; if (mounted.current) setSaving(false); }
   }
-  return { menu, savedMenu, ready, loading, saving, dirty, error, update, save, reload: load };
+  async function importLocal() {
+    if (!ready || busy.current || dirty || owner === 'local') return;
+    busy.current = true; setLoading(true); setError(null);
+    try {
+      const local = await menuStorage.load('local', week);
+      if (mounted.current) { setMenu(local); setDirty(true); }
+    } catch { if (mounted.current) setError('No pudimos recuperar el menú local.'); }
+    finally { busy.current = false; if (mounted.current) setLoading(false); }
+  }
+  function cancel() { if (!busy.current) { setMenu(savedMenu); setDirty(false); setError(null); } }
+  return { menu, savedMenu, ready, loading, saving, dirty, error, update, save, cancel, importLocal, reload: load };
 }

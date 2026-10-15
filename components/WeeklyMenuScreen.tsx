@@ -31,6 +31,10 @@ function WeekContent({ user, week, onWeekChange }: { user: User | null; week: st
           <View style={styles.summary}>
             <Text style={styles.summaryText}>{total} {total === 1 ? 'almuerzo planificado' : 'almuerzos planificados'}</Text>
             <Text style={styles.note}>Completa solo lo que necesites.</Text>
+            <Text style={styles.note}>{user ? 'Tu menú se guarda en tu cuenta de Supabase.' : 'Sin sesión, el menú se guarda en este dispositivo.'}</Text>
+            {user && <Button label="Actualizar desde Supabase" disabled={disabled || plan.dirty} onPress={() => void plan.reload()} />}
+            {user && <Button label="Recuperar menú sin sesión" secondary disabled={disabled || plan.dirty} onPress={() => void plan.importLocal()} />}
+            {user && <Text style={styles.note}>Recuperar carga el menú local como borrador. Revísalo antes de guardar y reemplazar el de esta semana.</Text>}
           </View>
           <View style={styles.calendar}>
             <View style={styles.calendarHeader}>
@@ -71,7 +75,8 @@ function WeekContent({ user, week, onWeekChange }: { user: User | null; week: st
             </View>)}</View>
             <View style={styles.footer}>
               <Button label={plan.saving ? 'Guardando…' : 'Guardar menú'} secondary disabled={disabled || !plan.dirty} onPress={() => void plan.save()} />
-              <Text accessibilityLiveRegion="polite" style={styles.note}>{plan.dirty ? 'Cambios sin guardar · pulsa Guardar menú antes de salir.' : 'Menú guardado en este dispositivo.'}</Text>
+              {plan.dirty && <Button label="Cancelar cambios" disabled={disabled} onPress={plan.cancel} />}
+              <Text accessibilityLiveRegion="polite" style={styles.note}>{plan.dirty ? 'Cambios sin guardar · pulsa Guardar menú antes de salir.' : user ? 'Menú cargado desde Supabase.' : 'Menú guardado en este dispositivo.'}</Text>
               <Text style={styles.note}>Puedes volver y cambiar tus platos cuando quieras.</Text>
             </View>
           </>}

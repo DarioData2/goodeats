@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { emptyRecipe, parseRecipe, type DailyRecipe } from '../services/recipeLogic';
+import { loadRecipe, saveRecipe } from '../services/mealPlanningService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { decodeRecipe, emptyRecipe, parseRecipe, type DailyRecipe } from '../services/recipeLogic';
+import { decodeRecipe } from '../services/recipeLogic';
 
 export function useDailyRecipe(owner: string, date: string) {
-  const key = `@goodeats/daily-recipe/v1/${owner}/${date}`;
   const [recipe, setRecipe] = useState(emptyRecipe);
   const [saved, setSaved] = useState(emptyRecipe);
   const [loading, setLoading] = useState(true);
@@ -17,12 +18,12 @@ export function useDailyRecipe(owner: string, date: string) {
     if (busy.current) return;
     busy.current = true; setLoading(true); setError(null);
     try {
-      const result = decodeRecipe(await AsyncStorage.getItem(key));
+      const result = await loadRecipe(owner, date);
       if (mounted.current) { setRecipe(result); setSaved(result); setReady(true); setDirty(false); }
     } catch {
       if (mounted.current) { setReady(false); setError('No pudimos cargar la receta. Los datos guardados se conservaron.'); }
     } finally { busy.current = false; if (mounted.current) setLoading(false); }
-  }, [key]);
+  }, [owner, date]);
   useEffect(() => { mounted.current = true; void load(); return () => { mounted.current = false; }; }, [load]);
   function update(field: keyof DailyRecipe, value: string) {
     if (!ready || busy.current) return;
@@ -35,12 +36,21 @@ export function useDailyRecipe(owner: string, date: string) {
     catch (issue) { setError((issue as Error).message); return; }
     busy.current = true; setSaving(true); setError(null);
     try {
-      await AsyncStorage.setItem(key, JSON.stringify(next));
+      await saveRecipe(owner, date, next);
       if (mounted.current) { setRecipe(next); setSaved(next); setDirty(false); }
     } catch {
       if (mounted.current) setError('No pudimos guardar. Conservamos lo que escribiste; vuelve a intentarlo.');
     } finally { busy.current = false; if (mounted.current) setSaving(false); }
   }
   function cancel() { if (!busy.current) { setRecipe(saved); setDirty(false); setError(null); } }
-  return { recipe, saved, ready, loading, saving, dirty, error, update, save, cancel, reload: load };
+  async function importLocal() {
+    if (!ready || busy.current || dirty || owner === 'local') return;
+    busy.current = true; setLoading(true); setError(null);
+    try {
+      const local = decodeRecipe(await AsyncStorage.getItem(`@goodeats/daily-recipe/v1/local/${date}`));
+      if (mounted.current) { setRecipe(local); setDirty(true); }
+    } catch { if (mounted.current) setError('No pudimos recuperar la receta local.'); }
+    finally { busy.current = false; if (mounted.current) setLoading(false); }
+  }
+  return { recipe, saved, ready, loading, saving, dirty, error, update, save, cancel, importLocal, reload: load };
 }

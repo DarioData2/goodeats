@@ -25,6 +25,14 @@ Dependencias añadidas: `@supabase/supabase-js`, `react-native-url-polyfill`, `e
 
 ## Base de datos y RLS
 
+### Menús y recetas
+
+La migración `supabase/migrations/202610140001_meal_planning.sql` añade `weekly_menus` (usuario, lunes de la semana, comidas JSON) y `daily_recipes` (usuario, fecha, título, ingredientes y pasos). Ambas usan clave primaria compuesta, referencia a `auth.users`, RLS y permisos SELECT/INSERT/UPDATE exclusivos de usuarios autenticados sobre sus propios registros. No almacenan contraseñas.
+
+`services/mealPlanningService.ts` valida la cuenta con `auth.getUser`, filtra por propietario y fecha, y guarda mediante upsert. Sin sesión usa almacenamiento local. Los errores de nube conservan el borrador y no cambian silenciosamente a modo local. La recuperación de datos sin sesión requiere revisión y guardado explícitos; la migración de respaldos locales de una cuenta usa inserción sin sobrescribir registros remotos.
+
+La migración se aplicó en el proyecto GoodEats el 14 de octubre de 2026 tras reactivar su base pausada. `supabase/tests/meal_planning_rls.sql` comprobó lectura, edición y upsert propios, formato inválido, bloqueo entre dos usuarios y ausencia de acceso anónimo; devolvió PASS y terminó en ROLLBACK, sin dejar usuarios ni comidas de prueba. Los backups locales permanecen intactos. En otros entornos, ejecutar la migración antes de publicar el código.
+
 La auditoría del proyecto confirmó las tablas `shopping_lists` y `shopping_items`, UUID y fechas con defaults y claves foráneas hacia propietarios y listas. RLS ya estaba habilitado en ambas tablas. Las listas tenían las cuatro políticas del propietario; a los productos les faltaba SELECT.
 
 Se ejecutó `supabase/migrations/202610040001_shopping_items_read.sql` en el proyecto existente: añadió una política SELECT para usuarios autenticados cuyos productos pertenecen a listas propias y un trigger que actualiza `updated_at`. Se conservaron las políticas de escritura existentes. No se deshabilitó RLS ni se volvió a habilitar innecesariamente.

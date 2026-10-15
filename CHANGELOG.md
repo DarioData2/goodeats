@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## 2026-10-14 — Menús y recetas en Supabase
+
+- Guardado por cuenta y semana/fecha en nuevas tablas `weekly_menus` y `daily_recipes`, con RLS por propietario y validación de sesión. Sin sesión se mantiene el almacenamiento local.
+- Actualización manual desde Supabase, recuperación de datos sin sesión como borrador y migración de respaldos de una cuenta sin sobrescribir registros remotos. Los fallos de guardado conservan el borrador.
+- SQL de migración y prueba de aislamiento entre cuentas con ROLLBACK; documentación actualizada.
+- Migración aplicada en Supabase y prueba real RLS aprobada, con datos temporales revertidos. Lint, TypeScript, 24 pruebas automatizadas y compilación web aprobados. Se reactivó el proyecto que estaba pausado; las contraseñas siguen gestionadas por Supabase Auth.
+
 ## 2026-10-12 — Mi Recetas
 
 - Nuevo enlace en el encabezado y ruta `/recetas` para la comida del día: nombre del plato, ingredientes y pasos de preparación.

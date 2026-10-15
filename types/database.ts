@@ -4,6 +4,18 @@ import type { ShoppingItem, ShoppingList } from './shopping';
 export type Database = {
   public: {
     Tables: {
+      weekly_menus: {
+        Row: { user_id: string; week_start: string; meals: string[][] };
+        Insert: { user_id: string; week_start: string; meals: string[][] };
+        Update: { meals?: string[][] };
+        Relationships: [];
+      };
+      daily_recipes: {
+        Row: { user_id: string; recipe_date: string; title: string; ingredients: string; steps: string };
+        Insert: { user_id: string; recipe_date: string; title: string; ingredients: string; steps: string };
+        Update: { title?: string; ingredients?: string; steps?: string };
+        Relationships: [];
+      };
       shopping_lists: {
         Row: ShoppingList;
         Insert: Pick<ShoppingList, 'user_id' | 'name'> & Partial<Pick<ShoppingList, 'id' | 'created_at'>>;

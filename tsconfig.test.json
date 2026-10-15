@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "outDir": ".test-build"
   },
-  "include": ["services/shoppingLogic.ts", "services/cloudShoppingLogic.ts", "services/shoppingService.ts", "services/authService.ts", "services/menuDates.ts", "services/recipeLogic.ts", "types/shopping.ts"]
+  "include": ["services/shoppingLogic.ts", "services/cloudShoppingLogic.ts", "services/shoppingService.ts", "services/authService.ts", "services/menuDates.ts", "services/recipeLogic.ts", "services/mealPlanningService.ts", "types/shopping.ts"]
 }

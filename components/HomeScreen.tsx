@@ -77,13 +77,13 @@ export function HomeScreen({ user }: { user: User | null }) {
               <Text style={styles.feature}>✓ Cambia de semana desde el calendario.</Text>
               <Text style={styles.feature}>✓ Identifica los días con platos guardados.</Text>
             </View>
-            <Text style={styles.storageNote}>Tu menú se guarda en este dispositivo. Puedes volver y cambiar tus platos cuando quieras.</Text>
+            <Text style={styles.storageNote}>Sin sesión se guarda en este dispositivo. Con tu cuenta puedes recuperar el menú desde otros dispositivos.</Text>
             <HomeLink href="/menu" label="Abrir Mi menú" />
           </View>
         </View>
         <View style={[styles.account, wide && styles.accountWide]}>
           <View style={styles.accountCopy}><Text style={styles.accountTitle}>{user ? 'Tu cuenta, siempre a mano' : 'Lleva tu lista a otros dispositivos'}</Text>
-            <Text style={styles.body}>{user ? 'Gestiona tu sesión y vuelve a tus listas cuando quieras.' : 'Crea una cuenta o inicia sesión para guardar tus listas de compras en la nube.'}</Text></View>
+            <Text style={styles.body}>{user ? 'Gestiona tu sesión y vuelve a tus listas cuando quieras.' : 'Crea una cuenta o inicia sesión para guardar tus compras, menús y recetas en la nube.'}</Text></View>
           <HomeLink href="/login" label={user ? 'Gestionar mi cuenta' : 'Acceder a mi cuenta'} />
         </View>
         <Text style={styles.footer}>Buenas comidas empiezan con un poco de organización.</Text>
