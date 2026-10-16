@@ -1,7 +1,7 @@
-import ShoppingScreen from '../../components/ShoppingScreen';
+import { PlannerWorkspace } from '../../components/PlannerWorkspace';
 import { useAccount } from '../../contexts/AuthContext';
 
 export default function ShoppingRoute() {
   const { user } = useAccount();
-  return <ShoppingScreen key={user?.id ?? 'local'} user={user} />;
+  return <PlannerWorkspace key={user?.id ?? 'local'} user={user} mode="shopping" />;
 }

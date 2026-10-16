@@ -2,12 +2,13 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ActionIcon } from './ActionIcon';
 import type { LocalShoppingItem as Item } from '../types/shopping';
 import { colors, ui } from '../constants/theme';
+import { formatQuantity } from '../services/quantities';
 type Props = { item: Item; disabled: boolean; onToggle: () => void; onEdit: () => void; onDelete: () => void };
 export function ShoppingItem({ item, disabled, onToggle, onEdit, onDelete }: Props) {
-  const details = [item.quantity?.toLocaleString('es-CL'), item.unit].filter(Boolean).join(' ');
+  const details = [item.quantity === undefined ? undefined : formatQuantity(item.quantity), item.unit].filter(Boolean).join(' ');
   return <View style={[styles.row, item.purchased && styles.purchased]}>
     <Pressable accessibilityRole="checkbox" accessibilityLabel={`Marcar ${item.name} como ${item.purchased ? 'pendiente' : 'comprado'}`}
-      accessibilityState={{ checked: item.purchased, disabled }} onPress={onToggle} disabled={disabled} style={styles.checkTarget}>
+      aria-checked={item.purchased} accessibilityState={{ checked: item.purchased, disabled }} onPress={onToggle} disabled={disabled} style={styles.checkTarget}>
       <View style={[styles.checkbox, item.purchased && styles.checked]}><Text style={styles.checkText}>{item.purchased ? '✓' : ''}</Text></View>
     </Pressable>
     <View style={styles.description}>

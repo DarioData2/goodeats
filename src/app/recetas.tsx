@@ -1,7 +1,7 @@
-import { RecipesScreen } from '../../components/RecipesScreen';
+import { PlannerWorkspace } from '../../components/PlannerWorkspace';
 import { useAccount } from '../../contexts/AuthContext';
 
 export default function RecipesRoute() {
   const { user } = useAccount();
-  return <RecipesScreen key={user?.id ?? 'local'} user={user} />;
+  return <PlannerWorkspace key={user?.id ?? 'local'} user={user} mode="recipes" />;
 }

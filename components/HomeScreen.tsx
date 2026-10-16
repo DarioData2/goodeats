@@ -8,11 +8,11 @@ import { MealIcon } from './MealIcon';
 
 const benefits = [
   { number: '01', title: 'Menos olvidos', text: 'Anota lo que hace falta y marca lo que ya compraste.' },
-  { number: '02', title: 'Una semana más clara', text: 'Decide tus almuerzos con tiempo y consulta tu menú cuando lo necesites.' },
-  { number: '03', title: 'Todo a mano', text: 'Tu lista y tu menú, en un mismo lugar y a tu ritmo.' },
+  { number: '02', title: 'Una semana más clara', text: 'Decide tus comidas con tiempo y consulta tu menú cuando lo necesites.' },
+  { number: '03', title: 'Todo a mano', text: 'Tus recetas, menú y compras, conectados en un mismo lugar.' },
 ];
 
-function HomeLink({ href, label, outline = false }: { href: '/lista' | '/menu' | '/login'; label: string; outline?: boolean }) {
+function HomeLink({ href, label, outline = false }: { href: '/lista' | '/menu' | '/login' | '/recetas'; label: string; outline?: boolean }) {
   return <Link href={href} asChild><Pressable accessibilityRole="link"
     style={StyleSheet.flatten([styles.link, outline && styles.outline])}>
     <Text style={[styles.linkText, outline && styles.outlineText]}>{label}</Text>
@@ -29,7 +29,7 @@ export function HomeScreen({ user }: { user: User | null }) {
           <View style={styles.heroCopy}>
             <Text style={styles.kicker}>BIENVENIDO A GOODEATS</Text>
             <Text accessibilityRole="header" style={[styles.heading, wide && styles.headingWide]}>Menos vueltas.{ '\n' }<Text style={styles.highlight}>Más buenas comidas.</Text></Text>
-            <Text style={styles.subtitle}>Organiza tus compras y planea tus almuerzos. Dale un poco de orden a tu semana y disfruta de cocinar.</Text>
+            <Text style={styles.subtitle}>Organiza tus compras y planea tus comidas. Dale un poco de orden a tu semana y disfruta de cocinar.</Text>
             <View style={styles.heroActions}>
               <HomeLink href="/lista" label="Crear mi lista" />
               <HomeLink href="/menu" label="Planear mi menú" outline />
@@ -54,37 +54,45 @@ export function HomeScreen({ user }: { user: User | null }) {
           <Text style={styles.body}>{benefit.text}</Text>
         </View>)}</View>
         <View style={styles.sectionIntro}><Text style={styles.kicker}>ELIGE POR DÓNDE EMPEZAR</Text>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>Dos maneras de organizar tu cocina</Text>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>Organiza tu cocina de principio a fin</Text>
         </View>
         <View style={[styles.options, wide && styles.optionsWide]}>
+          <View style={styles.option}>
+            <View style={styles.optionTop}><Text style={styles.optionNumber}>RECETAS</Text><MealIcon color={colors.accentText} /></View>
+            <Text accessibilityRole="header" style={styles.optionTitle}>Mis recetas</Text>
+            <Text style={styles.body}>Guarda tus platos favoritos y vuelve a elegirlos en tu menú.</Text>
+            <View style={styles.features}><Text style={styles.feature}>✓ Ingredientes con cantidades y unidades.</Text><Text style={styles.feature}>✓ Porciones y pasos de preparación.</Text><Text style={styles.feature}>✓ Búsqueda y categorías.</Text></View>
+            <Text style={styles.storageNote}>Biblioteca guardada en este dispositivo. Las recetas anteriores por fecha siguen disponibles.</Text>
+            <HomeLink href="/recetas" label="Abrir Mis recetas" />
+          </View>
           <View style={styles.option}>
             <View style={styles.optionTop}><Text style={styles.optionNumber}>01 / COMPRAS</Text><Text style={styles.optionSymbol}>＋</Text></View>
             <Text accessibilityRole="header" style={styles.optionTitle}>Mi lista</Text>
             <Text style={styles.body}>Todo lo que necesitas comprar, en una lista fácil de revisar.</Text>
             <View style={styles.features}>
-              <Text style={styles.feature}>✓ Agrega productos, cantidades y unidades.</Text>
-              <Text style={styles.feature}>✓ Edita desde la misma fila.</Text>
-              <Text style={styles.feature}>✓ Marca comprados y limpia tu lista.</Text>
+              <Text style={styles.feature}>✓ Genera ingredientes desde tu menú.</Text>
+              <Text style={styles.feature}>✓ Agrupa por sección de compra.</Text>
+              <Text style={styles.feature}>✓ Marca lo comprado; conserva tu lista manual.</Text>
             </View>
-            <Text style={styles.storageNote}>Sin sesión se guarda en este dispositivo. Con tu cuenta puedes guardar listas en la nube.</Text>
+            <Text style={styles.storageNote}>Las compras del menú se guardan en este dispositivo. La lista manual conserva su guardado en la nube.</Text>
             <HomeLink href="/lista" label="Abrir Mi lista" />
           </View>
           <View style={[styles.option, styles.menuOption]}>
             <View style={styles.optionTop}><Text style={styles.optionNumber}>02 / SEMANA</Text><MealIcon color={colors.accentText} /></View>
             <Text accessibilityRole="header" style={styles.optionTitle}>Mi menú</Text>
-            <Text style={styles.body}>Resuelve qué prepararás para el almuerzo, de lunes a domingo.</Text>
+            <Text style={styles.body}>Planifica desayunos, almuerzos, cenas y snacks de lunes a domingo.</Text>
             <View style={styles.features}>
-              <Text style={styles.feature}>✓ Escribe un almuerzo para cada día.</Text>
+              <Text style={styles.feature}>✓ Elige recetas y ajusta las porciones.</Text>
               <Text style={styles.feature}>✓ Cambia de semana desde el calendario.</Text>
               <Text style={styles.feature}>✓ Identifica los días con platos guardados.</Text>
             </View>
-            <Text style={styles.storageNote}>Sin sesión se guarda en este dispositivo. Con tu cuenta puedes recuperar el menú desde otros dispositivos.</Text>
+            <Text style={styles.storageNote}>La nueva planificación se guarda en este dispositivo. Tu menú anterior sigue disponible.</Text>
             <HomeLink href="/menu" label="Abrir Mi menú" />
           </View>
         </View>
         <View style={[styles.account, wide && styles.accountWide]}>
           <View style={styles.accountCopy}><Text style={styles.accountTitle}>{user ? 'Tu cuenta, siempre a mano' : 'Lleva tu lista a otros dispositivos'}</Text>
-            <Text style={styles.body}>{user ? 'Gestiona tu sesión y vuelve a tus listas cuando quieras.' : 'Crea una cuenta o inicia sesión para guardar tus compras, menús y recetas en la nube.'}</Text></View>
+            <Text style={styles.body}>{user ? 'Gestiona tu sesión y vuelve a tus listas cuando quieras.' : 'Accede a tus listas manuales, menús anteriores y recetas por fecha en la nube. La nueva biblioteca y planificación funcionan por ahora en este dispositivo.'}</Text></View>
           <HomeLink href="/login" label={user ? 'Gestionar mi cuenta' : 'Acceder a mi cuenta'} />
         </View>
         <Text style={styles.footer}>Buenas comidas empiezan con un poco de organización.</Text>

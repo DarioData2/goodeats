@@ -32,7 +32,7 @@ export function InlineItemEditor({ item, disabled, onSave, onCancel }: Props) {
       maxLength={20} style={styles.input} />
     <Text style={styles.label}>Unidad</Text>
     <View style={styles.units}>{UNITS.map(value => <Pressable key={value} accessibilityRole="radio"
-      accessibilityLabel={`${value} para ${item.name}`} accessibilityState={{ checked: unit === value, disabled }}
+      accessibilityLabel={`${value} para ${item.name}`} aria-checked={unit === value} accessibilityState={{ checked: unit === value, disabled }}
       disabled={disabled} onPress={() => setUnit(value)} style={[styles.chip, unit === value && styles.selected]}>
       <Text style={[styles.chipText, unit === value && { color: colors.onPrimary }]}>{unit === value ? '✓ ' : ''}{value}</Text>
     </Pressable>)}</View>

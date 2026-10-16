@@ -34,7 +34,7 @@ export function AddItemForm({ editing, disabled, saving, onSubmit, onCancel }: P
     <Text style={styles.label}>Unidad</Text>
     <View style={styles.units}>
       {UNITS.map(value => <Pressable key={value} accessibilityRole="radio" accessibilityLabel={value}
-        accessibilityState={{ checked: unit === value, disabled }} disabled={disabled} onPress={() => setUnit(value)}
+        aria-checked={unit === value} accessibilityState={{ checked: unit === value, disabled }} disabled={disabled} onPress={() => setUnit(value)}
         style={[styles.chip, unit === value && styles.selected]}>
         <Text style={[styles.chipText, unit === value && { color: colors.onPrimary }]}>{unit === value ? '✓ ' : ''}{value}</Text>
       </Pressable>)}

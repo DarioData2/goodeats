@@ -1,7 +1,7 @@
 import { useAccount } from '../../contexts/AuthContext';
-import { WeeklyMenuScreen } from '../../components/WeeklyMenuScreen';
+import { PlannerWorkspace } from '../../components/PlannerWorkspace';
 
 export default function MenuRoute() {
   const { user } = useAccount();
-  return <WeeklyMenuScreen key={user?.id ?? 'local'} user={user} />;
+  return <PlannerWorkspace key={user?.id ?? 'local'} user={user} mode="menu" />;
 }
