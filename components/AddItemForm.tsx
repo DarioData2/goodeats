@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import type { LocalShoppingItem as ShoppingItem, ShoppingItemInput } from '../types/shopping';
 import { UNITS } from '../constants/units';
 import { colors, ui } from '../constants/theme';
 import { parseItemInput } from '../services/shoppingLogic';
 import { Button } from './Button';
+import { CompactSelect } from './CompactSelect';
+import { Heading } from './Heading';
+import { RecipeField } from './RecipeField';
 type Props = {
   editing: ShoppingItem | null; disabled: boolean; saving: boolean;
   onSubmit: (input: ShoppingItemInput) => Promise<boolean>; onCancel: () => void;
@@ -14,32 +17,25 @@ export function AddItemForm({ editing, disabled, saving, onSubmit, onCancel }: P
   const [quantity, setQuantity] = useState(editing?.quantity?.toString() ?? '');
   const [unit, setUnit] = useState<string>(editing?.unit ?? 'unidad');
   const [error, setError] = useState<string | null>(null);
+  const [invalidField, setInvalidField] = useState<'name' | 'quantity'>('name');
+  const [focusSignal, setFocusSignal] = useState<object>();
   async function submit() {
     if (disabled) return;
     let input: ShoppingItemInput;
     try { input = parseItemInput(name, quantity, unit); setError(null); }
-    catch (issue) { setError((issue as Error).message); return; }
+    catch (issue) { setError((issue as Error).message); setInvalidField(name.trim() ? 'quantity' : 'name'); setFocusSignal({}); return; }
     if (await onSubmit(input)) { setName(''); setQuantity(''); setUnit('unidad'); }
   }
   return <View style={styles.card}>
     <Text style={styles.eyebrow}>{editing ? 'AJUSTA TU LISTA' : '¿QUÉ HACE FALTA?'}</Text>
-    <Text style={styles.title}>{editing ? 'Editar producto' : 'Agregar producto'}</Text>
-    <Text style={styles.label}>Producto</Text>
-    <TextInput accessibilityLabel="Producto" placeholder="Ej. Tomates" placeholderTextColor={colors.muted}
+    <Heading level={2} style={styles.title}>{editing ? 'Editar producto' : 'Agregar producto'}</Heading>
+    <RecipeField label="Producto" fieldId="new-item-name" error={invalidField === 'name' ? error ?? undefined : undefined} focusSignal={invalidField === 'name' ? focusSignal : undefined} placeholder="Ej. Tomates"
       value={name} onChangeText={setName} editable={!disabled} style={styles.input} maxLength={120}
       returnKeyType="done" onSubmitEditing={() => void submit()} />
-    <Text style={styles.label}>Cantidad <Text style={styles.optional}>(opcional)</Text></Text>
-    <TextInput accessibilityLabel="Cantidad (opcional)" placeholder="Ej. 6" placeholderTextColor={colors.muted}
+    <RecipeField label="Cantidad (opcional)" fieldId="new-item-quantity" error={invalidField === 'quantity' ? error ?? undefined : undefined} focusSignal={invalidField === 'quantity' ? focusSignal : undefined} placeholder="Ej. 6"
       keyboardType="decimal-pad" value={quantity} onChangeText={setQuantity} editable={!disabled} style={styles.input} maxLength={20} />
-    <Text style={styles.label}>Unidad</Text>
-    <View style={styles.units}>
-      {UNITS.map(value => <Pressable key={value} accessibilityRole="radio" accessibilityLabel={value}
-        aria-checked={unit === value} accessibilityState={{ checked: unit === value, disabled }} disabled={disabled} onPress={() => setUnit(value)}
-        style={[styles.chip, unit === value && styles.selected]}>
-        <Text style={[styles.chipText, unit === value && { color: colors.onPrimary }]}>{unit === value ? '✓ ' : ''}{value}</Text>
-      </Pressable>)}
-    </View>
-    {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
+    <CompactSelect label="Unidad" values={UNITS} value={unit} onChange={setUnit} disabled={disabled} />
+    {error && <Text accessibilityRole="alert" style={styles.error}>Revisa el campo indicado.</Text>}
     <Button label={saving ? 'Guardando…' : editing ? 'Guardar cambios' : '+  Agregar a la lista'} disabled={disabled} onPress={() => void submit()} />
     {editing && <Button label="Cancelar edición" secondary disabled={saving} onPress={onCancel} />}
     <Text style={styles.hint}>Una cosa menos en qué pensar.</Text>

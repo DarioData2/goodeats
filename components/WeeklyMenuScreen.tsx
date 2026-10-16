@@ -1,5 +1,5 @@
 import type { User } from '@supabase/supabase-js';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, ui } from '../constants/theme';
@@ -9,12 +9,13 @@ import { dayDate, shiftWeek, shortDate, weekStart } from '../services/menuDates'
 import { AppHeader } from './AppHeader';
 import { Button } from './Button';
 import { MealIcon } from './MealIcon';
+import { Heading } from './Heading';
 
-export function WeeklyMenuScreen({ user }: { user: User | null }) {
+export function WeeklyMenuScreen({ user, toolbar }: { user: User | null; toolbar?: ReactNode }) {
   const [week, setWeek] = useState(() => weekStart());
-  return <WeekContent key={week} user={user} week={week} onWeekChange={setWeek} />;
+  return <WeekContent key={week} user={user} week={week} onWeekChange={setWeek} toolbar={toolbar} />;
 }
-function WeekContent({ user, week, onWeekChange }: { user: User | null; week: string; onWeekChange: (week: string) => void }) {
+function WeekContent({ user, week, onWeekChange, toolbar }: { user: User | null; week: string; onWeekChange: (week: string) => void; toolbar?: ReactNode }) {
   const plan = useWeeklyMenu(user?.id ?? 'local', week);
   const total = plan.menu.filter(day => day[1].trim()).length;
   const disabled = !plan.ready || plan.loading || plan.saving;
@@ -22,17 +23,17 @@ function WeekContent({ user, week, onWeekChange }: { user: User | null; week: st
     <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
-          <AppHeader user={user} />
+          <AppHeader user={user} />{toolbar}
           <View style={styles.intro}>
             <Text style={styles.kicker}>TU SEMANA, A TU GUSTO</Text>
-            <Text style={styles.heading}>Mi menú</Text>
+            <Heading style={styles.heading}>Menú anterior</Heading>
             <Text style={styles.subtitle}>Organiza tus almuerzos de lunes a domingo.</Text>
           </View>
           <View style={styles.summary}>
             <Text style={styles.summaryText}>{total} {total === 1 ? 'almuerzo planificado' : 'almuerzos planificados'}</Text>
             <Text style={styles.note}>Completa solo lo que necesites.</Text>
-            <Text style={styles.note}>{user ? 'Tu menú se guarda en tu cuenta de Supabase.' : 'Sin sesión, el menú se guarda en este dispositivo.'}</Text>
-            {user && <Button label="Actualizar desde Supabase" disabled={disabled || plan.dirty} onPress={() => void plan.reload()} />}
+            <Text style={styles.note}>{user ? 'Guardado en tu cuenta.' : 'Sin sesión, el menú se guarda en este dispositivo.'}</Text>
+            {user && <Button label="Actualizar desde mi cuenta" disabled={disabled || plan.dirty} onPress={() => void plan.reload()} />}
             {user && <Button label="Recuperar menú sin sesión" secondary disabled={disabled || plan.dirty} onPress={() => void plan.importLocal()} />}
             {user && <Text style={styles.note}>Recuperar carga el menú local como borrador. Revísalo antes de guardar y reemplazar el de esta semana.</Text>}
           </View>
@@ -66,7 +67,7 @@ function WeekContent({ user, week, onWeekChange }: { user: User | null; week: st
           </View>}
           {plan.loading ? <ActivityIndicator accessibilityLabel="Cargando menú" color={colors.primary} style={styles.loader} /> : plan.ready && <>
             <View style={styles.days}>{DAYS.map((day, dayIndex) => <View key={day} style={styles.day}>
-              <View style={styles.dayHeader}><Text style={styles.dayName}>{day}</Text><Text style={styles.label}>{shortDate(dayDate(week, dayIndex))}</Text></View>
+              <View style={styles.dayHeader}><Heading level={2} style={styles.dayName}>{day}</Heading><Text style={styles.label}>{shortDate(dayDate(week, dayIndex))}</Text></View>
                 <Text style={styles.label}>Almuerzo</Text>
                 <TextInput accessibilityLabel={`Almuerzo del ${day.toLowerCase()}`} placeholder="¿Qué prepararás?"
                   placeholderTextColor={colors.muted} value={plan.menu[dayIndex][1]}
@@ -76,7 +77,7 @@ function WeekContent({ user, week, onWeekChange }: { user: User | null; week: st
             <View style={styles.footer}>
               <Button label={plan.saving ? 'Guardando…' : 'Guardar menú'} disabled={disabled || !plan.dirty} onPress={() => void plan.save()} />
               {plan.dirty && <Button label="Cancelar cambios" secondary disabled={disabled} onPress={plan.cancel} />}
-              <Text accessibilityLiveRegion="polite" style={styles.note}>{plan.dirty ? 'Cambios sin guardar · pulsa Guardar menú antes de salir.' : user ? 'Menú cargado desde Supabase.' : 'Menú guardado en este dispositivo.'}</Text>
+              <Text accessibilityLiveRegion="polite" style={styles.note}>{plan.dirty ? 'Cambios sin guardar · pulsa Guardar menú antes de salir.' : user ? 'Menú cargado desde tu cuenta.' : 'Menú guardado en este dispositivo.'}</Text>
               <Text style={styles.note}>Puedes volver y cambiar tus platos cuando quieras.</Text>
             </View>
           </>}

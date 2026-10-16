@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { colors, ui } from '../constants/theme';
 import { UNITS } from '../constants/units';
 import { parseItemInput } from '../services/shoppingLogic';
 import type { LocalShoppingItem, ShoppingItemInput } from '../types/shopping';
 import { Button } from './Button';
+import { CompactSelect } from './CompactSelect';
+import { RecipeField } from './RecipeField';
 
 type Props = {
   item: LocalShoppingItem; disabled: boolean;
@@ -15,28 +17,23 @@ export function InlineItemEditor({ item, disabled, onSave, onCancel }: Props) {
   const [quantity, setQuantity] = useState(item.quantity?.toString() ?? '');
   const [unit, setUnit] = useState(item.unit ?? 'unidad');
   const [error, setError] = useState<string | null>(null);
+  const [invalidField, setInvalidField] = useState<'name' | 'quantity'>('name');
+  const [focusSignal, setFocusSignal] = useState<object>();
   async function save() {
     if (disabled) return;
     let input: ShoppingItemInput;
     try { input = parseItemInput(name, quantity, unit); setError(null); }
-    catch (issue) { setError((issue as Error).message); return; }
+    catch (issue) { setError((issue as Error).message); setInvalidField(name.trim() ? 'quantity' : 'name'); setFocusSignal({}); return; }
     await onSave(input);
   }
   return <View style={styles.editor}>
-    <Text style={styles.label}>Producto</Text>
-    <TextInput accessibilityLabel={`Nombre de ${item.name}`} value={name} onChangeText={setName}
+    <RecipeField label="Producto" fieldId={`item-${item.id}-name`} error={invalidField === 'name' ? error ?? undefined : undefined} focusSignal={invalidField === 'name' ? focusSignal : undefined} accessibilityLabel={`Nombre de ${item.name}`} value={name} onChangeText={setName}
       editable={!disabled} maxLength={120} style={styles.input} />
-    <Text style={styles.label}>Cantidad (opcional)</Text>
-    <TextInput accessibilityLabel={`Cantidad de ${item.name}`} value={quantity} onChangeText={setQuantity}
+    <RecipeField label="Cantidad (opcional)" fieldId={`item-${item.id}-quantity`} error={invalidField === 'quantity' ? error ?? undefined : undefined} focusSignal={invalidField === 'quantity' ? focusSignal : undefined} accessibilityLabel={`Cantidad de ${item.name}`} value={quantity} onChangeText={setQuantity}
       editable={!disabled} keyboardType="decimal-pad" placeholder="Ej. 6" placeholderTextColor={colors.muted}
       maxLength={20} style={styles.input} />
-    <Text style={styles.label}>Unidad</Text>
-    <View style={styles.units}>{UNITS.map(value => <Pressable key={value} accessibilityRole="radio"
-      accessibilityLabel={`${value} para ${item.name}`} aria-checked={unit === value} accessibilityState={{ checked: unit === value, disabled }}
-      disabled={disabled} onPress={() => setUnit(value)} style={[styles.chip, unit === value && styles.selected]}>
-      <Text style={[styles.chipText, unit === value && { color: colors.onPrimary }]}>{unit === value ? '✓ ' : ''}{value}</Text>
-    </Pressable>)}</View>
-    {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
+    <CompactSelect label={`Unidad de ${item.name}`} values={UNITS} value={unit} onChange={setUnit} disabled={disabled} />
+    {error && <Text accessibilityRole="alert" style={styles.error}>Revisa el campo indicado.</Text>}
     <View style={styles.buttons}>
       <View style={styles.button}><Button label={disabled ? 'Guardando…' : 'Guardar'} disabled={disabled} onPress={() => void save()} /></View>
       <View style={styles.button}><Button label="Cancelar" secondary disabled={disabled} onPress={onCancel} /></View>

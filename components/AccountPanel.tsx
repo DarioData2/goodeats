@@ -5,6 +5,7 @@ import { signIn, signOut, signUp } from '../services/authService';
 import { supabaseConfigurationError } from '../lib/supabase';
 import { colors, ui } from '../constants/theme';
 import { Button } from './Button';
+import { Heading } from './Heading';
 
 export function AccountPanel({ user, disabled }: { user: User | null; disabled: boolean }) {
   const [register, setRegister] = useState(false);
@@ -43,14 +44,16 @@ export function AccountPanel({ user, disabled }: { user: User | null; disabled: 
     finally { lock.current = false; setBusy(false); }
   }
   return <View style={styles.card}>
-    <Text style={styles.title}>{user ? 'Tu cuenta' : 'Tu lista, en todos tus dispositivos'}</Text>
-    <Text style={styles.note}>{user ? user.email : 'Inicia sesión para guardar en Supabase. Sin sesión puedes seguir usando tu lista local.'}</Text>
+    {user && <Heading level={2} style={styles.title}>Tu cuenta</Heading>}
+    <Text style={styles.note}>{user ? user.email : 'Accede a tus listas manuales, menús anteriores y recetas por fecha guardados en tu cuenta.'}</Text>
     {user && <Button secondary label={busy ? 'Cerrando sesión…' : 'Cerrar sesión'} disabled={disabled || busy} onPress={() => void logout()} />}
     {!user && <View style={styles.form}>
-      <Text style={styles.title}>{register ? 'Crear cuenta' : 'Iniciar sesión'}</Text>
+      <Heading level={2} style={styles.title}>{register ? 'Crear cuenta' : 'Tus datos de acceso'}</Heading>
+      <Text style={styles.label}>Correo electrónico</Text>
       <TextInput accessibilityLabel="Correo electrónico" placeholder="tu@correo.com" placeholderTextColor={colors.muted}
         value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false}
         autoComplete="email" editable={!busy} style={styles.input} />
+      <Text style={styles.label}>Contraseña</Text>
       <View style={styles.passwordField}>
         <TextInput accessibilityLabel="Contraseña" placeholder="Contraseña" placeholderTextColor={colors.muted}
           value={password} onChangeText={setPassword} secureTextEntry={!showPassword} autoCapitalize="none" autoCorrect={false}
@@ -73,6 +76,7 @@ export function AccountPanel({ user, disabled }: { user: User | null; disabled: 
 const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 20, gap: 12, marginBottom: 24 },
   title: { fontSize: 17, fontWeight: '700', color: colors.ink }, note: { color: colors.muted, lineHeight: 21 },
+  label: { color: colors.ink, fontSize: 15, fontWeight: '600' },
   form: { gap: 12, maxWidth: 440, width: '100%' },
   input: { minHeight: 50, borderWidth: 1, borderColor: colors.controlBorder, borderRadius: ui.radius.control, padding: 14, fontSize: 16, color: colors.ink, backgroundColor: colors.input },
   passwordField: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.controlBorder, borderRadius: ui.radius.control, backgroundColor: colors.input },

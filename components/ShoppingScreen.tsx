@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AddItemForm } from '../components/AddItemForm';
@@ -8,22 +8,23 @@ import { colors, ui } from '../constants/theme';
 import { useShoppingList } from '../hooks/useShoppingList';
 import { useCloudShoppingList } from '../hooks/useCloudShoppingList';
 import { AppHeader } from './AppHeader';
+import { Heading } from './Heading';
 import { CloudListControls } from '../components/CloudListControls';
 import type { User } from '@supabase/supabase-js';
 import type { LocalShoppingItem as ShoppingItem, ShoppingItemInput } from '../types/shopping';
-export default function ShoppingScreen({ user }: { user: User | null }) {
-  return user ? <CloudShoppingScreen user={user} /> : <LocalShoppingScreen />;
+export default function ShoppingScreen({ user, toolbar }: { user: User | null; toolbar?: ReactNode }) {
+  return user ? <CloudShoppingScreen user={user} toolbar={toolbar} /> : <LocalShoppingScreen toolbar={toolbar} />;
 }
-function LocalShoppingScreen() {
+function LocalShoppingScreen({ toolbar }: { toolbar?: ReactNode }) {
   const list = useShoppingList();
-  return <ShoppingContent list={list} user={null} />;
+  return <ShoppingContent list={list} user={null} toolbar={toolbar} />;
 }
-function CloudShoppingScreen({ user }: { user: User }) {
+function CloudShoppingScreen({ user, toolbar }: { user: User; toolbar?: ReactNode }) {
   const list = useCloudShoppingList();
-  return <ShoppingContent key={list.selectedId ?? 'no-list'} list={list} cloud={list} user={user} />;
+  return <ShoppingContent key={list.selectedId ?? 'no-list'} list={list} cloud={list} user={user} toolbar={toolbar} />;
 }
-function ShoppingContent({ list, cloud, user }: {
-  list: ReturnType<typeof useShoppingList>; cloud?: ReturnType<typeof useCloudShoppingList>; user: User | null;
+function ShoppingContent({ list, cloud, user, toolbar }: {
+  list: ReturnType<typeof useShoppingList>; cloud?: ReturnType<typeof useCloudShoppingList>; user: User | null; toolbar?: ReactNode;
 }) {
   const [editing, setEditing] = useState<ShoppingItem | null>(null);
   const wide = useWindowDimensions().width >= 850;
@@ -36,9 +37,9 @@ function ShoppingContent({ list, cloud, user }: {
     <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
-          <AppHeader user={user} />
+          <AppHeader user={user} />{toolbar}
           <View style={styles.intro}><Text style={styles.kicker}>TU COCINA, ORGANIZADA</Text>
-            <Text style={[styles.heading, !wide && { fontSize: 34 }]}>Mi lista de compras</Text>
+            <Heading style={[styles.heading, !wide && { fontSize: 34 }]}>Mi lista de compras</Heading>
             <Text style={styles.subtitle}>Todo lo que necesitas, a mano.</Text></View>
           {cloud && <CloudListControls list={cloud} />}
           {list.error && <View style={styles.errorBox}><Text accessibilityRole="alert" style={styles.error}>{list.error}</Text>
@@ -47,7 +48,7 @@ function ShoppingContent({ list, cloud, user }: {
             <View style={wide ? styles.formColumn : undefined}><AddItemForm key={cloud?.selectedId ?? 'local'} editing={null} disabled={disabled} saving={list.saving}
               onSubmit={submit} onCancel={() => setEditing(null)} /></View>
             <View style={styles.listColumn}>
-              <View style={styles.listHeader}><Text style={styles.listTitle}>Tu lista</Text><Text style={styles.count}>{list.items.length} {list.items.length === 1 ? 'producto' : 'productos'}</Text></View>
+              <View style={styles.listHeader}><Heading level={2} style={styles.listTitle}>Tu lista</Heading><Text style={styles.count}>{list.items.length} {list.items.length === 1 ? 'producto' : 'productos'}</Text></View>
               <View style={styles.summary}><Text style={styles.pending}>{list.items.length - purchased} pendientes</Text>
                 <Text style={styles.count}>{purchased} {purchased === 1 ? 'comprado' : 'comprados'}</Text></View>
               {list.loading ? <ActivityIndicator accessibilityLabel="Cargando lista" color={colors.primaryDark} style={{ padding: 40 }} /> :
@@ -57,7 +58,7 @@ function ShoppingContent({ list, cloud, user }: {
                   onSave={async (id, input) => { const saved = await list.edit(id, input); if (saved) setEditing(null); return saved; }}
                   onDelete={id => { void list.remove(id).then(saved => { if (saved && editing?.id === id) setEditing(null); }); }} />}
               <View style={styles.footer}>
-                <Text accessibilityLiveRegion="polite" style={styles.localNote}>{list.saving ? 'Guardando cambios…' : cloud ? list.ready ? 'Guardado en Supabase · usa Actualizar para ver cambios de otros dispositivos' : 'Supabase · selecciona o crea una lista' : list.ready ? 'Guardado en este dispositivo' : 'Almacenamiento local'}</Text>
+                <Text accessibilityLiveRegion="polite" style={styles.localNote}>{list.saving ? 'Guardando cambios…' : cloud ? list.ready ? 'En tu cuenta · actualiza para ver cambios de otros dispositivos' : 'Selecciona o crea una lista en tu cuenta' : list.ready ? 'Guardado en este dispositivo' : 'Almacenamiento local'}</Text>
                 <Button label="Limpiar comprados" secondary disabled={disabled || purchased === 0}
                   onPress={() => { void list.clearPurchased().then(saved => { if (saved && editing && list.items.find(item => item.id === editing.id)?.purchased) setEditing(null); }); }} />
               </View>

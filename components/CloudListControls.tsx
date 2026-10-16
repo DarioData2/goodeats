@@ -3,15 +3,16 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button } from './Button';
 import { colors, ui } from '../constants/theme';
 import type { useCloudShoppingList } from '../hooks/useCloudShoppingList';
+import { Heading } from './Heading';
 
 export function CloudListControls({ list }: { list: ReturnType<typeof useCloudShoppingList> }) {
   const [name, setName] = useState('Mi lista de compras');
   const disabled = list.loading || list.saving;
   return <View style={styles.card}>
-    <Text style={styles.title}>Mis listas en Supabase</Text>
-    <View style={styles.options}>{list.lists.map(value => <Pressable key={value.id}
+    <Heading level={2} style={styles.title}>Mis listas en la cuenta</Heading>
+    <View accessibilityRole="radiogroup" accessibilityLabel="Lista de compras activa" style={styles.options}>{list.lists.map(value => <Pressable key={value.id}
       accessibilityRole="radio" accessibilityLabel={`Lista ${value.name}`}
-      accessibilityState={{ checked: value.id === list.selectedId, disabled }} disabled={disabled}
+      aria-checked={value.id === list.selectedId} accessibilityState={{ checked: value.id === list.selectedId, disabled }} disabled={disabled}
       onPress={() => void list.selectList(value.id)} style={[styles.option, value.id === list.selectedId && styles.selected]}>
       <Text style={[styles.text, value.id === list.selectedId && { color: colors.onPrimary }]}>{value.id === list.selectedId ? '✓ ' : ''}{value.name}</Text>
     </Pressable>)}</View>
@@ -22,7 +23,7 @@ export function CloudListControls({ list }: { list: ReturnType<typeof useCloudSh
       <Button label="Crear lista" disabled={disabled || !name.trim()} onPress={() => {
         void list.createList(name).then(created => { if (created) setName(''); });
       }} />
-      <Button secondary label="Actualizar desde Supabase" disabled={disabled} onPress={() => void list.reload()} />
+      <Button secondary label="Actualizar desde mi cuenta" disabled={disabled} onPress={() => void list.reload()} />
     </View>
     <Text style={styles.note}>Tus productos locales siguen en este dispositivo. Las listas de tu cuenta se guardan por separado.</Text>
   </View>;

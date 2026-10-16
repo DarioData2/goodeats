@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { colors, ui } from '../constants/theme';
-type Props = { label: string; onPress: () => void; disabled?: boolean; secondary?: boolean };
-export function Button({ label, onPress, disabled, secondary }: Props) {
-  return <Pressable accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled}
+type Props = { label: string; onPress: () => void; disabled?: boolean; secondary?: boolean; accessibilityLabel?: string };
+export function Button({ label, onPress, disabled, secondary, accessibilityLabel }: Props) {
+  return <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled}
     style={({ pressed }) => [styles.button, secondary && styles.secondary, disabled && styles.disabled, pressed && !disabled && { opacity: 0.85 }]}>
     <Text style={[styles.text, secondary && styles.secondaryText, disabled && styles.disabledText]}>{label}</Text>
   </Pressable>;

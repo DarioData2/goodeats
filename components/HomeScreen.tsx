@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, ui } from '../constants/theme';
 import { AppHeader } from './AppHeader';
 import { MealIcon } from './MealIcon';
+import { Heading } from './Heading';
 
 const benefits = [
   { number: '01', title: 'Menos olvidos', text: 'Anota lo que hace falta y marca lo que ya compraste.' },
@@ -54,12 +55,12 @@ export function HomeScreen({ user }: { user: User | null }) {
           <Text style={styles.body}>{benefit.text}</Text>
         </View>)}</View>
         <View style={styles.sectionIntro}><Text style={styles.kicker}>ELIGE POR DÓNDE EMPEZAR</Text>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>Organiza tu cocina de principio a fin</Text>
+          <Heading level={2} style={styles.sectionTitle}>Organiza tu cocina de principio a fin</Heading>
         </View>
         <View style={[styles.options, wide && styles.optionsWide]}>
           <View style={styles.option}>
             <View style={styles.optionTop}><Text style={styles.optionNumber}>RECETAS</Text><MealIcon color={colors.accentText} /></View>
-            <Text accessibilityRole="header" style={styles.optionTitle}>Mis recetas</Text>
+            <Heading level={3} style={styles.optionTitle}>Mis recetas</Heading>
             <Text style={styles.body}>Guarda tus platos favoritos y vuelve a elegirlos en tu menú.</Text>
             <View style={styles.features}><Text style={styles.feature}>✓ Ingredientes con cantidades y unidades.</Text><Text style={styles.feature}>✓ Porciones y pasos de preparación.</Text><Text style={styles.feature}>✓ Búsqueda y categorías.</Text></View>
             <Text style={styles.storageNote}>Biblioteca guardada en este dispositivo. Las recetas anteriores por fecha siguen disponibles.</Text>
@@ -67,7 +68,7 @@ export function HomeScreen({ user }: { user: User | null }) {
           </View>
           <View style={styles.option}>
             <View style={styles.optionTop}><Text style={styles.optionNumber}>01 / COMPRAS</Text><Text style={styles.optionSymbol}>＋</Text></View>
-            <Text accessibilityRole="header" style={styles.optionTitle}>Mi lista</Text>
+            <Heading level={3} style={styles.optionTitle}>Mi lista</Heading>
             <Text style={styles.body}>Todo lo que necesitas comprar, en una lista fácil de revisar.</Text>
             <View style={styles.features}>
               <Text style={styles.feature}>✓ Genera ingredientes desde tu menú.</Text>
@@ -79,7 +80,7 @@ export function HomeScreen({ user }: { user: User | null }) {
           </View>
           <View style={[styles.option, styles.menuOption]}>
             <View style={styles.optionTop}><Text style={styles.optionNumber}>02 / SEMANA</Text><MealIcon color={colors.accentText} /></View>
-            <Text accessibilityRole="header" style={styles.optionTitle}>Mi menú</Text>
+            <Heading level={3} style={styles.optionTitle}>Mi menú</Heading>
             <Text style={styles.body}>Planifica desayunos, almuerzos, cenas y snacks de lunes a domingo.</Text>
             <View style={styles.features}>
               <Text style={styles.feature}>✓ Elige recetas y ajusta las porciones.</Text>

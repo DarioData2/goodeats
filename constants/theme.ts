@@ -5,6 +5,7 @@ export const colors = {
   onPrimary: '#FFFFFF', onAccent: '#111827', border: '#E5E7EB',
   input: '#FFFFFF', controlBorder: '#6B7280', danger: '#B42318', errorBackground: '#FEF3F2',
   disabled: '#E5E7EB', onDisabled: '#4B5563', transparent: 'transparent',
+  overlay: 'rgba(17,24,39,0.4)',
 };
 
 export const ui = {

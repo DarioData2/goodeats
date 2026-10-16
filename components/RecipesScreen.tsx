@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,11 +10,11 @@ import { AppHeader } from './AppHeader';
 import { Button } from './Button';
 import { MealIcon } from './MealIcon';
 
-export function RecipesScreen({ user }: { user: User | null }) {
+export function RecipesScreen({ user, toolbar }: { user: User | null; toolbar?: ReactNode }) {
   const [date, setDate] = useState(() => dateKey(new Date()));
-  return <RecipeDay key={date} user={user} date={date} onDateChange={setDate} />;
+  return <RecipeDay key={date} user={user} date={date} onDateChange={setDate} toolbar={toolbar} />;
 }
-function RecipeDay({ user, date, onDateChange }: { user: User | null; date: string; onDateChange: (date: string) => void }) {
+function RecipeDay({ user, date, onDateChange, toolbar }: { user: User | null; date: string; onDateChange: (date: string) => void; toolbar?: ReactNode }) {
   const plan = useDailyRecipe(user?.id ?? 'local', date);
   const [cooking, setCooking] = useState(false);
   const disabled = !plan.ready || plan.loading || plan.saving;
@@ -23,12 +23,12 @@ function RecipeDay({ user, date, onDateChange }: { user: User | null; date: stri
     <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
-          <AppHeader user={user} />
+          <AppHeader user={user} />{toolbar}
           <View style={styles.intro}><Text style={styles.kicker}>DE LA IDEA AL PLATO</Text>
-            <Text accessibilityRole="header" style={styles.heading}>Mi Recetas</Text>
+            <Text accessibilityRole="header" style={styles.heading}>Recetas por fecha</Text>
             <Text style={styles.subtitle}>Guarda cómo preparar la comida del día y consulta la receta al cocinar.</Text>
-            <Text style={styles.hint}>{user ? 'Tus recetas se guardan en tu cuenta de Supabase.' : 'Sin sesión, las recetas se guardan en este dispositivo.'}</Text>
-            {user && <Button label="Actualizar desde Supabase" disabled={disabled || plan.dirty} onPress={() => { setCooking(false); void plan.reload(); }} />}
+            <Text style={styles.hint}>{user ? 'Guardado en tu cuenta.' : 'Guardado en este dispositivo.'}</Text>
+            {user && <Button label="Actualizar desde mi cuenta" disabled={disabled || plan.dirty} onPress={() => { setCooking(false); void plan.reload(); }} />}
             {user && <Button label="Recuperar receta sin sesión" secondary disabled={disabled || plan.dirty} onPress={() => { setCooking(false); void plan.importLocal(); }} />}
             {user && <Text style={styles.hint}>Recuperar carga la receta local como borrador. Revísala antes de guardar y reemplazar la de esta fecha.</Text>}</View>
           <View style={styles.dateBar}>
@@ -66,7 +66,7 @@ function RecipeDay({ user, date, onDateChange }: { user: User | null; date: stri
               {!!plan.saved.title && !plan.dirty && <Button label="Ver preparación" onPress={() => setCooking(true)} />}
             </>}
           </View>}
-          <Text accessibilityLiveRegion="polite" style={styles.note}>{plan.dirty ? 'Cambios sin guardar. Guarda o cancela antes de cambiar de día.' : plan.ready ? user ? 'Receta cargada desde Supabase.' : 'Recetas guardadas en este dispositivo, por día.' : ''}</Text>
+          <Text accessibilityLiveRegion="polite" style={styles.note}>{plan.dirty ? 'Cambios sin guardar. Guarda o cancela antes de cambiar de día.' : plan.ready ? user ? 'Receta cargada desde tu cuenta.' : 'Recetas guardadas en este dispositivo, por día.' : ''}</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

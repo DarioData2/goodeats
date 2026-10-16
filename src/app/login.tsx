@@ -4,6 +4,7 @@ import { AppHeader } from '../../components/AppHeader';
 import { AccountPanel } from '../../components/AccountPanel';
 import { useAccount } from '../../contexts/AuthContext';
 import { colors } from '../../constants/theme';
+import { Heading } from '../../components/Heading';
 export default function LoginRoute() {
   const { user } = useAccount();
   return <SafeAreaView style={styles.safe}>
@@ -12,8 +13,8 @@ export default function LoginRoute() {
         <View style={styles.container}>
           <AppHeader user={user} accountPage />
           <View style={styles.intro}>
-            <Text style={styles.title}>{user ? 'Mi cuenta' : 'Bienvenido a GoodEats'}</Text>
-            <Text style={styles.subtitle}>Tu lista de compras, siempre a mano.</Text>
+            <Heading style={styles.title}>{user ? 'Mi cuenta' : 'Iniciar sesión'}</Heading>
+            <Text style={styles.subtitle}>Tu cocina, organizada.</Text>
           </View>
           <View style={styles.form}><AccountPanel user={user} disabled={false} /></View>
         </View>
