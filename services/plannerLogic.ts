@@ -1,14 +1,15 @@
 import { roundQuantity } from './quantities';
+import { parseVideoUrl, validateVideoBookmark, validateVideoSource, type VideoBookmark, type VideoSource } from './videoRecipes';
 
 export const MEAL_SLOTS = ['Desayuno', 'Almuerzo', 'Cena', 'Snacks'] as const;
 export const AISLES = ['Frutas y verduras', 'Carnes y pescados', 'Lácteos y huevos', 'Despensa', 'Panadería', 'Congelados', 'Otros'] as const;
 export const UNITS = ['unidad', 'g', 'kg', 'ml', 'litro', 'cucharada', 'cucharadita', 'taza', 'paquete'] as const;
 export type Ingredient = { name: string; quantity: number; unit: string; aisle: string };
-export type Recipe = { id: string; title: string; category: string; servings: number; ingredients: Ingredient[]; steps: string };
+export type Recipe = { id: string; title: string; category: string; servings: number; ingredients: Ingredient[]; steps: string; source?: VideoSource };
 // A snapshot keeps a saved meal stable when its library recipe is edited later.
 export type Meal = { recipe: Recipe; servings: number } | { text: string } | null;
 export type WeekPlan = Meal[][];
-export type PlannerData = { version: 1; recipes: Recipe[]; weeks: Record<string, WeekPlan>; purchased: Record<string, string[]> };
+export type PlannerData = { version: 1; recipes: Recipe[]; weeks: Record<string, WeekPlan>; purchased: Record<string, string[]>; savedVideos?: VideoBookmark[] };
 export type Grocery = Ingredient & { key: string };
 export const blankWeek = (): WeekPlan => Array.from({ length: 7 }, () => Array<Meal>(4).fill(null));
 export const blankPlanner = (): PlannerData => ({ version: 1, recipes: [], weeks: {}, purchased: {} });
@@ -25,7 +26,7 @@ export function validateRecipe(recipe: Recipe): Recipe {
   if (!Number.isFinite(recipe.servings) || recipe.servings <= 0 || recipe.servings > 1000000) throw new Error('Revisa las porciones.');
   if (!recipe.ingredients.length) throw new Error('Agrega al menos un ingrediente.');
   if (recipe.steps.length > 6000 || recipe.category.length > 60) throw new Error('El texto supera el tamaño permitido.');
-  return { ...recipe, title: recipe.title.trim(), category: recipe.category.trim() || 'Sin categoría', steps: recipe.steps.trim(), ingredients: recipe.ingredients.map(item => {
+  return { ...recipe, ...(recipe.source !== undefined ? { source: validateVideoSource(recipe.source) } : {}), title: recipe.title.trim(), category: recipe.category.trim() || 'Sin categoría', steps: recipe.steps.trim(), ingredients: recipe.ingredients.map(item => {
     if (!item.name.trim() || item.name.length > 120 || !UNITS.includes(item.unit as typeof UNITS[number]) || !AISLES.includes(item.aisle as typeof AISLES[number]) || !Number.isFinite(item.quantity) || item.quantity <= 0 || item.quantity > 1000000) throw new Error('Revisa el nombre, cantidad, unidad y sección de cada ingrediente.');
     return { ...item, name: item.name.trim() };
   }) };
@@ -49,11 +50,27 @@ export function generateGroceries(week: WeekPlan): { items: Grocery[]; unlinked:
   return { items: [...grouped.values()].map(item => ({ ...item, quantity: roundQuantity(item.quantity) })).sort((a, b) => AISLES.indexOf(a.aisle as typeof AISLES[number]) - AISLES.indexOf(b.aisle as typeof AISLES[number]) || a.name.localeCompare(b.name, 'es')), unlinked };
 }
 export const purchaseKey = (item: Grocery) => JSON.stringify([item.key, item.quantity]);
+export function addSavedVideo(data: PlannerData, input: VideoBookmark): PlannerData {
+  const bookmark = validateVideoBookmark(input);
+  const urls = [...(data.savedVideos ?? []).map(item => item.source.url), ...data.recipes.flatMap(item => item.source ? [item.source.url] : [])];
+  if (urls.some(url => parseVideoUrl(url).url === bookmark.source.url)) throw new Error('Este enlace ya está en tu biblioteca o entre los pendientes.');
+  return { ...data, savedVideos: [...(data.savedVideos ?? []), bookmark] };
+}
+export function completeSavedVideo(data: PlannerData, bookmarkId: string, input: Recipe): PlannerData {
+  const bookmark = data.savedVideos?.find(item => item.id === bookmarkId);
+  if (!bookmark) throw new Error('El enlace pendiente ya no está disponible. Vuelve a cargar la biblioteca.');
+  const recipe = validateRecipe({ ...input, source: { ...bookmark.source, author: input.source?.author } });
+  return { ...data, recipes: [...data.recipes.filter(item => item.id !== recipe.id), recipe], savedVideos: data.savedVideos?.filter(item => item.id !== bookmarkId) };
+}
 export function decodePlanner(raw: string | null): PlannerData {
   if (raw === null) return blankPlanner();
   const data = JSON.parse(raw) as PlannerData;
   if (data.version !== 1 || !Array.isArray(data.recipes) || !data.weeks || !data.purchased) throw new Error('Formato de planificación inválido.');
   data.recipes.forEach(validateRecipe);
+  if (data.savedVideos !== undefined) {
+    if (!Array.isArray(data.savedVideos)) throw new Error('Videos guardados inválidos.');
+    data.savedVideos = data.savedVideos.map(validateVideoBookmark);
+  }
   for (const week of Object.values(data.weeks)) {
     if (!Array.isArray(week) || week.length !== 7 || week.some(day => !Array.isArray(day) || day.length !== 4)) throw new Error('Semana inválida.');
     for (const day of week) for (const meal of day) {

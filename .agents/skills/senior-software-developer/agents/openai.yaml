@@ -1,0 +1,4 @@
+interface:
+  display_name: "Senior Software Developer"
+  short_description: "Desarrollo full stack, móvil y arquitectura segura"
+  default_prompt: "Usa $senior-software-developer para analizar e implementar esta tarea con criterios de aceptación y verificación."

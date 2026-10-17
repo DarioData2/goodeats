@@ -5,7 +5,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollVie
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, ui } from '../constants/theme';
 import { usePlanner } from '../hooks/usePlanner';
-import { AISLES, UNITS, MEAL_SLOTS, blankWeek, generateGroceries, normalize, positiveNumber, purchaseKey, validateRecipe, type Recipe, type WeekPlan } from '../services/plannerLogic';
+import { AISLES, UNITS, MEAL_SLOTS, addSavedVideo, completeSavedVideo, blankWeek, generateGroceries, normalize, positiveNumber, purchaseKey, validateRecipe, type Recipe, type WeekPlan } from '../services/plannerLogic';
 import { DAYS } from '../services/menuStorage';
 import { dayDate, shiftWeek, shortDate, weekStart } from '../services/menuDates';
 import { loadMenu } from '../services/mealPlanningService';
@@ -20,6 +20,8 @@ import { CompactSelect } from './CompactSelect';
 import { RecipeField } from './RecipeField';
 import { ModuleViews } from './ModuleViews';
 import { recipeFormErrors, type IngredientDraft } from '../services/recipeForm';
+import { VideoImport, VideoSourceLink } from './VideoImport';
+import type { VideoBookmark } from '../services/videoRecipes';
 
 type Mode = 'recipes' | 'menu' | 'shopping';
 type Store = ReturnType<typeof usePlanner>;
@@ -57,10 +59,20 @@ function Library({ store, onDraftChange }: { store: Store; onDraftChange: (value
   const [viewing, setViewing] = useState<Recipe | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [options, setOptions] = useState<string | null>(null);
-  useEffect(() => { onDraftChange(!!editing); return () => onDraftChange(false); }, [editing, onDraftChange]);
+  const [importing, setImporting] = useState(false);
+  const [completing, setCompleting] = useState<VideoBookmark | null>(null);
+  useEffect(() => { onDraftChange(!!editing || importing || !!completing); return () => onDraftChange(false); }, [editing, importing, completing, onDraftChange]);
+  if (importing) return <VideoImport busy={store.busy} onCancel={() => setImporting(false)} onSave={async bookmark => {
+    addSavedVideo(store.data, bookmark);
+    if (await store.save(data => addSavedVideo(data, bookmark))) setImporting(false);
+  }} />;
+  if (completing) return <RecipeEditor key={completing.id} bookmark={completing} busy={store.busy} onCancel={() => setCompleting(null)} onSave={async recipe => {
+    if (await store.save(data => completeSavedVideo(data, completing.id, recipe))) setCompleting(null);
+  }} />;
   if (editing) return <RecipeEditor key={editing === 'new' ? 'new' : editing.id} recipe={editing === 'new' ? undefined : editing} busy={store.busy}
     onCancel={() => setEditing(null)} onSave={async recipe => { if (await store.save(data => ({ ...data, recipes: [...data.recipes.filter(item => item.id !== recipe.id), recipe] }))) setEditing(null); }} />;
   if (viewing) return <View style={styles.card}><Heading level={2} style={styles.title}>{viewing.title}</Heading><Text style={styles.hint}>{viewing.category} · {viewing.servings} porciones</Text>
+    {viewing.source && <VideoSourceLink source={viewing.source} />}
     <Heading level={3} style={styles.label}>Ingredientes</Heading>{viewing.ingredients.map((item, index) => <Text key={index} style={styles.body}>• {formatQuantity(item.quantity)} {item.unit} de {item.name}</Text>)}
     <Heading level={3} style={styles.label}>Preparación</Heading>{viewing.steps.split('\n').filter(line => line.trim()).map((line, index) => <Text key={index} style={styles.body}>{index + 1}. {line}</Text>)}
     {!viewing.steps && <Text style={styles.hint}>Sin pasos de preparación.</Text>}<Button label="Volver a mis recetas" secondary onPress={() => setViewing(null)} /></View>;
@@ -68,11 +80,23 @@ function Library({ store, onDraftChange }: { store: Store; onDraftChange: (value
   const recipes = store.data.recipes.filter(recipe => normalize(recipe.title).includes(normalize(query)) && (category === 'Todas' || recipe.category === category));
   return <View style={styles.stack}>
     <Button label="Crear receta" onPress={() => setEditing('new')} disabled={store.busy} />
+    <Button label="Importar desde video" secondary onPress={() => setImporting(true)} disabled={store.busy} />
     <TextInput accessibilityLabel="Buscar recetas" placeholder="Buscar por nombre" placeholderTextColor={colors.muted} style={styles.input} value={query} onChangeText={setQuery} />
     <Choices label="Categoría" values={categories} value={category} onChange={setCategory} />
+    {!!store.data.savedVideos?.length && <View style={styles.stack}>
+      <Heading level={2} style={styles.title}>Videos pendientes de completar</Heading>
+      <Text style={styles.hint}>Estos enlaces aún no se pueden elegir en el menú ni generar compras. Completa sus ingredientes y porciones primero. Se muestran aparte de los filtros de recetas.</Text>
+      {store.data.savedVideos.filter(bookmark => normalize(bookmark.title).includes(normalize(query))).map(bookmark => <View key={bookmark.id} style={styles.card}>
+        <Heading level={3} style={styles.title}>{bookmark.title}</Heading><Text style={styles.hint}>Pendiente de completar</Text>
+        <VideoSourceLink source={bookmark.source} />
+        <Button label="Completar receta" accessibilityLabel={`Completar receta de ${bookmark.title}`} disabled={store.busy} onPress={() => setCompleting(bookmark)} />
+        {deleting === bookmark.id ? <><Text style={styles.body}>¿Eliminar este enlace pendiente?</Text><Button label="Confirmar eliminación del enlace" disabled={store.busy} onPress={() => void store.save(data => ({ ...data, savedVideos: data.savedVideos?.filter(item => item.id !== bookmark.id) })).then(saved => { if (saved) setDeleting(null); })} /><Button label="Conservar enlace" secondary disabled={store.busy} onPress={() => setDeleting(null)} /></> : <Button label={`Eliminar enlace de ${bookmark.title}`} secondary disabled={store.busy} onPress={() => setDeleting(bookmark.id)} />}
+      </View>)}
+    </View>}
     {!recipes.length && <View style={styles.card}><Text style={styles.body}>{store.data.recipes.length ? 'No hay recetas con estos filtros.' : 'Crea tu primera receta con ingredientes y porciones. Después podrás elegirla en Mi menú.'}</Text></View>}
     {recipes.map(recipe => <View key={recipe.id} style={styles.card}>
       <Heading level={2} style={styles.title}>{recipe.title}</Heading><Text style={styles.hint}>{recipe.category} · {recipe.servings} {recipe.servings === 1 ? 'porción' : 'porciones'} · {recipe.ingredients.length} {recipe.ingredients.length === 1 ? 'ingrediente' : 'ingredientes'}</Text>
+      {recipe.source && <VideoSourceLink source={recipe.source} />}
       <Button label="Ver preparación" accessibilityLabel={`Ver preparación de ${recipe.title}`} onPress={() => setViewing(recipe)} />
       <Button label={options === recipe.id ? 'Cerrar opciones' : 'Opciones de receta'} secondary accessibilityLabel={`Opciones de ${recipe.title}`} onPress={() => { setOptions(options === recipe.id ? null : recipe.id); setDeleting(null); }} />
       {options === recipe.id && <><Button label="Editar receta" accessibilityLabel={`Editar ${recipe.title}`} secondary onPress={() => setEditing(recipe)} disabled={store.busy} />
@@ -81,9 +105,11 @@ function Library({ store, onDraftChange }: { store: Store; onDraftChange: (value
     </View>)}
   </View>;
 }
-function RecipeEditor({ recipe, busy, onSave, onCancel }: { recipe?: Recipe; busy: boolean; onSave: (recipe: Recipe) => Promise<void>; onCancel: () => void }) {
-  const [id] = useState(() => recipe?.id ?? randomUUID());
-  const [title, setTitle] = useState(recipe?.title ?? '');
+function RecipeEditor({ recipe, bookmark, busy, onSave, onCancel }: { recipe?: Recipe; bookmark?: VideoBookmark; busy: boolean; onSave: (recipe: Recipe) => Promise<void>; onCancel: () => void }) {
+  const [id] = useState(() => recipe?.id ?? bookmark?.id ?? randomUUID());
+  const source = recipe?.source ?? bookmark?.source;
+  const [author, setAuthor] = useState(source?.author ?? '');
+  const [title, setTitle] = useState(recipe?.title ?? bookmark?.title ?? '');
   const [category, setCategory] = useState(recipe?.category ?? '');
   const [servings, setServings] = useState(String(recipe?.servings ?? 2));
   const [steps, setSteps] = useState(recipe?.steps ?? '');
@@ -98,11 +124,12 @@ function RecipeEditor({ recipe, busy, onSave, onCancel }: { recipe?: Recipe; bus
     setFieldErrors(errors);
     const first = Object.keys(errors)[0];
     if (first) { setError('Revisa los campos indicados antes de guardar.'); setFocusRequest({ key: first }); return; }
-    try { const next = validateRecipe({ id, title, category, servings: positiveNumber(servings), steps, ingredients: ingredients.map(item => ({ ...item, quantity: positiveNumber(item.quantity) })) }); setError(''); await onSave(next); }
+    try { const next = validateRecipe({ id, title, category, servings: positiveNumber(servings), steps, ingredients: ingredients.map(item => ({ ...item, quantity: positiveNumber(item.quantity) })), ...(source ? { source: { ...source, author } } : {}) }); setError(''); await onSave(next); }
     catch (issue) { setError((issue as Error).message); }
   }
   return <View style={styles.stack}>
     <View style={styles.card}><Heading level={2} style={styles.title}>{recipe ? 'Editar receta' : 'Nueva receta'}</Heading><Text style={styles.hint}>Guarda antes de salir. Las comidas ya planificadas conservarán su versión de la receta.</Text>
+      {source && <><VideoSourceLink source={source} /><RecipeField fieldId={`recipe-${id}-author`} label="Autor o canal (opcional)" value={author} onChangeText={setAuthor} maxLength={120} editable={!busy} /><Text style={styles.hint}>Copia los ingredientes en los campos siguientes y pega los pasos en Preparación. Revisa las cantidades antes de guardar.</Text></>}
       {!!error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
       <RecipeField {...fieldProps('title')} label="Nombre del plato" accessibilityLabel="Nombre de la receta" value={title} onChangeText={setTitle} maxLength={120} placeholder="Ej. Ensalada de garbanzos" />
       <RecipeField {...fieldProps('category')} label="Categoría (opcional)" value={category} onChangeText={setCategory} maxLength={60} placeholder="Ej. Ensaladas" />
