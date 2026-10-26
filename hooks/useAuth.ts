@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Session } from '@supabase/supabase-js';
+import type { Session, User } from '@supabase/supabase-js';
 import { supabase, supabaseConfigurationError } from '../lib/supabase';
 
 export function useAuth() {
@@ -26,5 +26,8 @@ export function useAuth() {
     });
     return () => { active = false; subscription.unsubscribe(); };
   }, []);
-  return { user: session?.user ?? null, loading, error };
+  function applyUser(user: User) {
+    setSession(current => current?.user.id === user.id ? { ...current, user } : current);
+  }
+  return { user: session?.user ?? null, loading, error, applyUser };
 }
