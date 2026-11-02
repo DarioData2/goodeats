@@ -5,7 +5,7 @@ Implementación local del 15 de octubre de 2026. No incluye importación desde s
 ## Uso
 
 1. En Mis recetas, crear un plato, su categoría, porciones, ingredientes y preparación. Cada ingrediente tiene nombre, cantidad, unidad y sección de compra. Se puede buscar por nombre, filtrar por categoría, editar, consultar y eliminar con confirmación.
-2. En Mi menú, elegir una receta para desayuno, almuerzo, cena o snacks de cualquier día; ajustar las porciones y guardar al final del domingo.
+2. En Mi menú, elegir una receta para desayuno, almuerzo, cena, snacks o postres de cualquier día; ajustar las porciones y guardar la semana.
 3. Pulsar Generar lista de compras o abrir Mi lista. Las compras se calculan a partir de la semana guardada y se agrupan por sección. Marcar productos persiste el estado de compra.
 
 Las cantidades se multiplican por `porciones planificadas / porciones de la receta`. Se suman nombres iguales ignorando mayúsculas, espacios y acentos. Se convierten kg a g y litros a ml; no se inventan conversiones entre unidades, tazas, paquetes o peso. No se fusionan sinónimos ni preparaciones distintas. Si un ingrediente tiene secciones diferentes, se conserva la primera sección de la semana.
@@ -20,7 +20,15 @@ Cada comida guarda una copia de la receta: editar o eliminar la receta de la bib
 - La nueva lista automática está separada de la lista manual para evitar duplicados al regenerar. Se deriva del menú guardado: repetir la generación no agrega filas duplicadas.
 - Guardado explícito de recetas y menú. Cancelar descarta el borrador. No se garantiza conservación de borradores al salir de la pantalla.
 - Errores de lectura bloquean escritura; errores de guardado mantienen el borrador. No hay soporte de edición simultánea entre pestañas.
-- Esta entrega no aplica migraciones ni modifica producción, credenciales o políticas de Supabase. La sincronización de la nueva biblioteca y del plan de cuatro comidas requiere una fase posterior antes de ofrecerla como función en la nube.
+- Esta entrega no aplica migraciones ni modifica producción, credenciales o políticas de Supabase. La sincronización de la nueva biblioteca y del plan de cinco tipos de comida requiere una fase posterior antes de ofrecerla como función en la nube.
+
+### Ampliación local del 1 de noviembre de 2026
+
+El planificador incluye Postres como quinto espacio opcional. Al leer semanas anteriores de cuatro espacios, conserva desayuno, almuerzo, cena y snacks en sus posiciones y agrega un postre vacío, sin alterar recetas ni marcas de compra. Los ingredientes de los postres guardados participan en la lista automática y en el ajuste de porciones.
+
+Menú anterior vuelve a mostrar sus tres campos existentes (desayuno, almuerzo y cena); sus indicadores cuentan cualquier comida guardada. Conserva el formato remoto de tres campos exigido por Supabase. Snacks y postres se planifican en la vista Planificador. Recuperar un menú anterior conserva los tres campos y deja vacíos los dos espacios adicionales.
+
+Verificación de esta ampliación: 61 pruebas automatizadas aprobadas, incluidas regresiones de compatibilidad, recuperación del menú anterior y compras con postres; lint, TypeScript y exportación web aprobados. No se realizaron despliegues ni migraciones de Supabase.
 
 ## Archivos
 

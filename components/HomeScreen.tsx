@@ -81,7 +81,7 @@ export function HomeScreen({ user }: { user: User | null }) {
           <View style={[styles.option, styles.menuOption]}>
             <View style={styles.optionTop}><Text style={styles.optionNumber}>02 / SEMANA</Text><MealIcon color={colors.accentText} /></View>
             <Heading level={3} style={styles.optionTitle}>Mi menú</Heading>
-            <Text style={styles.body}>Planifica desayunos, almuerzos, cenas y snacks de lunes a domingo.</Text>
+            <Text style={styles.body}>Planifica desayunos, almuerzos, cenas, snacks y postres de lunes a domingo.</Text>
             <View style={styles.features}>
               <Text style={styles.feature}>✓ Elige recetas y ajusta las porciones.</Text>
               <Text style={styles.feature}>✓ Cambia de semana desde el calendario.</Text>

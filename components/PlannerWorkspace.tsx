@@ -5,7 +5,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollVie
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, ui } from '../constants/theme';
 import { usePlanner } from '../hooks/usePlanner';
-import { AISLES, UNITS, MEAL_SLOTS, addSavedVideo, completeSavedVideo, blankWeek, generateGroceries, normalize, positiveNumber, purchaseKey, validateRecipe, type Recipe, type WeekPlan } from '../services/plannerLogic';
+import { AISLES, UNITS, MEAL_SLOTS, addSavedVideo, completeSavedVideo, blankWeek, planFromLegacyMenu, generateGroceries, normalize, positiveNumber, purchaseKey, validateRecipe, type Recipe, type WeekPlan } from '../services/plannerLogic';
 import { DAYS } from '../services/menuStorage';
 import { dayDate, shiftWeek, shortDate, weekStart } from '../services/menuDates';
 import { loadMenu } from '../services/mealPlanningService';
@@ -37,7 +37,7 @@ export function PlannerWorkspace({ user, mode }: { user: User | null; mode: Mode
   return <SafeAreaView style={styles.fill}><KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === 'ios' ? 'padding' : undefined}><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
     <View style={styles.container}><AppHeader user={user} />{toolbar}
       <View style={styles.intro}><Heading style={styles.heading}>{titles[mode]}</Heading>
-        <Text style={styles.body}>{mode === 'recipes' ? 'Tus platos favoritos, listos para volver a cocinar.' : mode === 'menu' ? 'Elige recetas para cada comida y ajusta las porciones.' : 'Los ingredientes de tu semana, agrupados por sección.'}</Text>
+        <Text style={styles.body}>{mode === 'recipes' ? 'Tus platos favoritos, listos para volver a cocinar.' : mode === 'menu' ? 'Organiza desayunos, almuerzos, cenas, snacks y postres. Elige recetas y ajusta las porciones.' : 'Los ingredientes de tu semana, agrupados por sección.'}</Text>
         <Text style={styles.storage}>En este dispositivo · {user ? 'solo para esta cuenta · ' : ''}sin sincronización</Text>
       </View>
       {!!store.error && <Text accessibilityRole="alert" style={styles.error}>{store.error}</Text>}
@@ -178,7 +178,7 @@ function Weekly({ store, owner, shopping, onDraftChange }: { store: Store; owner
   }
   async function recover() {
     setImporting(true); setError('');
-    try { const old = await loadMenu(owner, week); setDraft(old.map(day => [...day.map(text => text.trim() ? { text } : null), null])); setNotice('Menú anterior cargado como borrador. Asigna recetas para incluir sus ingredientes en las compras.'); }
+    try { const old = await loadMenu(owner, week); setDraft(planFromLegacyMenu(old)); setNotice('Menú anterior cargado como borrador. Asigna recetas para incluir sus ingredientes en las compras.'); }
     catch { setError('No pudimos recuperar el menú anterior. No se modificó tu planificación.'); }
     finally { setImporting(false); }
   }

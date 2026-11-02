@@ -1,7 +1,7 @@
 import { roundQuantity } from './quantities';
 import { parseVideoUrl, validateVideoBookmark, validateVideoSource, type VideoBookmark, type VideoSource } from './videoRecipes';
 
-export const MEAL_SLOTS = ['Desayuno', 'Almuerzo', 'Cena', 'Snacks'] as const;
+export const MEAL_SLOTS = ['Desayuno', 'Almuerzo', 'Cena', 'Snacks', 'Postres'] as const;
 export const AISLES = ['Frutas y verduras', 'Carnes y pescados', 'Lácteos y huevos', 'Despensa', 'Panadería', 'Congelados', 'Otros'] as const;
 export const UNITS = ['unidad', 'g', 'kg', 'ml', 'litro', 'cucharada', 'cucharadita', 'taza', 'paquete'] as const;
 export type Ingredient = { name: string; quantity: number; unit: string; aisle: string };
@@ -11,7 +11,9 @@ export type Meal = { recipe: Recipe; servings: number } | { text: string } | nul
 export type WeekPlan = Meal[][];
 export type PlannerData = { version: 1; recipes: Recipe[]; weeks: Record<string, WeekPlan>; purchased: Record<string, string[]>; savedVideos?: VideoBookmark[] };
 export type Grocery = Ingredient & { key: string };
-export const blankWeek = (): WeekPlan => Array.from({ length: 7 }, () => Array<Meal>(4).fill(null));
+export const blankWeek = (): WeekPlan => Array.from({ length: 7 }, () => Array<Meal>(MEAL_SLOTS.length).fill(null));
+export const planFromLegacyMenu = (menu: string[][]): WeekPlan => menu.map(day =>
+  MEAL_SLOTS.map((_, index) => day[index]?.trim() ? { text: day[index] } : null));
 export const blankPlanner = (): PlannerData => ({ version: 1, recipes: [], weeks: {}, purchased: {} });
 export const normalize = (value: string) => value.trim().toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
 export function positiveNumber(value: string): number {
@@ -71,13 +73,15 @@ export function decodePlanner(raw: string | null): PlannerData {
     if (!Array.isArray(data.savedVideos)) throw new Error('Videos guardados inválidos.');
     data.savedVideos = data.savedVideos.map(validateVideoBookmark);
   }
-  for (const week of Object.values(data.weeks)) {
-    if (!Array.isArray(week) || week.length !== 7 || week.some(day => !Array.isArray(day) || day.length !== 4)) throw new Error('Semana inválida.');
+  for (const [key, week] of Object.entries(data.weeks)) {
+    if (!Array.isArray(week) || week.length !== 7 || week.some(day => !Array.isArray(day) || (day.length !== 4 && day.length !== MEAL_SLOTS.length))) throw new Error('Semana inválida.');
     for (const day of week) for (const meal of day) {
       if (meal === null) continue;
       if ('text' in meal) { if (typeof meal.text !== 'string') throw new Error('Comida inválida.'); }
       else { validateRecipe(meal.recipe); if (!Number.isFinite(meal.servings) || meal.servings <= 0 || meal.servings > 1000000) throw new Error('Porciones inválidas.'); }
     }
+    // Existing four-slot weeks retain their positions; dessert is appended empty.
+    data.weeks[key] = week.map(day => day.length === 4 ? [...day, null] : day);
   }
   if (Object.values(data.purchased).some(value => !Array.isArray(value) || value.some(key => typeof key !== 'string'))) throw new Error('Compras inválidas.');
   return data;

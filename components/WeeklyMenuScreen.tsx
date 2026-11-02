@@ -4,7 +4,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollVie
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, ui } from '../constants/theme';
 import { useWeeklyMenu } from '../hooks/useWeeklyMenu';
-import { DAYS } from '../services/menuStorage';
+import { DAYS, MEALS } from '../services/menuStorage';
 import { dayDate, shiftWeek, shortDate, weekStart } from '../services/menuDates';
 import { AppHeader } from './AppHeader';
 import { Button } from './Button';
@@ -17,7 +17,7 @@ export function WeeklyMenuScreen({ user, toolbar }: { user: User | null; toolbar
 }
 function WeekContent({ user, week, onWeekChange, toolbar }: { user: User | null; week: string; onWeekChange: (week: string) => void; toolbar?: ReactNode }) {
   const plan = useWeeklyMenu(user?.id ?? 'local', week);
-  const total = plan.menu.filter(day => day[1].trim()).length;
+  const total = plan.menu.flat().filter(meal => meal.trim()).length;
   const disabled = !plan.ready || plan.loading || plan.saving;
   return <SafeAreaView style={styles.safe}>
     <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -27,10 +27,10 @@ function WeekContent({ user, week, onWeekChange, toolbar }: { user: User | null;
           <View style={styles.intro}>
             <Text style={styles.kicker}>TU SEMANA, A TU GUSTO</Text>
             <Heading style={styles.heading}>Menú anterior</Heading>
-            <Text style={styles.subtitle}>Organiza tus almuerzos de lunes a domingo.</Text>
+            <Text style={styles.subtitle}>Organiza desayunos, almuerzos y cenas de lunes a domingo. Para incluir snacks y postres, usa el Planificador.</Text>
           </View>
           <View style={styles.summary}>
-            <Text style={styles.summaryText}>{total} {total === 1 ? 'almuerzo planificado' : 'almuerzos planificados'}</Text>
+            <Text style={styles.summaryText}>{total} {total === 1 ? 'comida planificada' : 'comidas planificadas'}</Text>
             <Text style={styles.note}>Completa solo lo que necesites.</Text>
             <Text style={styles.note}>{user ? 'Guardado en tu cuenta.' : 'Sin sesión, el menú se guarda en este dispositivo.'}</Text>
             {user && <Button label="Actualizar desde mi cuenta" disabled={disabled || plan.dirty} onPress={() => void plan.reload()} />}
@@ -51,8 +51,8 @@ function WeekContent({ user, week, onWeekChange, toolbar }: { user: User | null;
               </Pressable>
             </View>
             <View style={styles.calendarDays}>{DAYS.map((day, index) => {
-              const planned = plan.ready && !!plan.savedMenu[index][1].trim();
-              return <View key={day} accessible accessibilityLabel={`${day}, ${shortDate(dayDate(week, index))}: ${planned ? 'almuerzo guardado' : 'sin almuerzo guardado'}`}
+              const planned = plan.ready && plan.savedMenu[index].some(meal => !!meal.trim());
+              return <View key={day} accessible accessibilityLabel={`${day}, ${shortDate(dayDate(week, index))}: ${planned ? 'con comidas guardadas' : 'sin comidas guardadas'}`}
                 style={[styles.calendarDay, planned && styles.plannedDay]}>
                 <Text style={[styles.calendarLabel, planned && styles.plannedText]}>{day.slice(0, 3)}</Text>
                 <Text style={[styles.calendarNumber, planned && styles.plannedText]}>{dayDate(week, index).getDate()}</Text>
@@ -68,11 +68,13 @@ function WeekContent({ user, week, onWeekChange, toolbar }: { user: User | null;
           {plan.loading ? <ActivityIndicator accessibilityLabel="Cargando menú" color={colors.primary} style={styles.loader} /> : plan.ready && <>
             <View style={styles.days}>{DAYS.map((day, dayIndex) => <View key={day} style={styles.day}>
               <View style={styles.dayHeader}><Heading level={2} style={styles.dayName}>{day}</Heading><Text style={styles.label}>{shortDate(dayDate(week, dayIndex))}</Text></View>
-                <Text style={styles.label}>Almuerzo</Text>
-                <TextInput accessibilityLabel={`Almuerzo del ${day.toLowerCase()}`} placeholder="¿Qué prepararás?"
-                  placeholderTextColor={colors.muted} value={plan.menu[dayIndex][1]}
-                  onChangeText={value => plan.update(dayIndex, 1, value)} editable={!disabled}
-                  maxLength={240} multiline style={styles.input} />
+                {MEALS.map((meal, mealIndex) => <View key={meal} style={styles.mealField}>
+                  <Text style={styles.label}>{meal}</Text>
+                  <TextInput accessibilityLabel={`${meal} del ${day.toLowerCase()}`} placeholder="¿Qué prepararás?"
+                    placeholderTextColor={colors.muted} value={plan.menu[dayIndex][mealIndex]}
+                    onChangeText={value => plan.update(dayIndex, mealIndex, value)} editable={!disabled}
+                    maxLength={240} multiline style={styles.input} />
+                </View>)}
             </View>)}</View>
             <View style={styles.footer}>
               <Button label={plan.saving ? 'Guardando…' : 'Guardar menú'} disabled={disabled || !plan.dirty} onPress={() => void plan.save()} />
@@ -95,6 +97,7 @@ const styles = StyleSheet.create({
   summary: { backgroundColor: colors.accentSoft, borderRadius: ui.radius.control, padding: 16, gap: 4, marginBottom: 18 },
   summaryText: { fontSize: 15, fontWeight: '700', color: colors.ink }, note: { fontSize: 13, lineHeight: 20, color: colors.ink },
   days: { gap: 12 }, day: { borderRadius: ui.radius.card, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 12 },
+  mealField: { gap: 6 },
   dayName: { fontSize: 18, fontWeight: '700', color: colors.ink },
   dayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   calendar: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, padding: 12, borderRadius: ui.radius.card, marginBottom: 18, gap: 10 },
