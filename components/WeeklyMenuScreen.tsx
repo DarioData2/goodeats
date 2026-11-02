@@ -2,7 +2,8 @@ import type { User } from '@supabase/supabase-js';
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { useWeeklyMenu } from '../hooks/useWeeklyMenu';
 import { DAYS, MEALS } from '../services/menuStorage';
 import { dayDate, shiftWeek, shortDate, weekStart } from '../services/menuDates';
@@ -16,6 +17,7 @@ export function WeeklyMenuScreen({ user, toolbar }: { user: User | null; toolbar
   return <WeekContent key={week} user={user} week={week} onWeekChange={setWeek} toolbar={toolbar} />;
 }
 function WeekContent({ user, week, onWeekChange, toolbar }: { user: User | null; week: string; onWeekChange: (week: string) => void; toolbar?: ReactNode }) {
+  const { colors, styles } = useStyles();
   const plan = useWeeklyMenu(user?.id ?? 'local', week);
   const total = plan.menu.flat().filter(meal => meal.trim()).length;
   const disabled = !plan.ready || plan.loading || plan.saving;
@@ -56,7 +58,7 @@ function WeekContent({ user, week, onWeekChange, toolbar }: { user: User | null;
                 style={[styles.calendarDay, planned && styles.plannedDay]}>
                 <Text style={[styles.calendarLabel, planned && styles.plannedText]}>{day.slice(0, 3)}</Text>
                 <Text style={[styles.calendarNumber, planned && styles.plannedText]}>{dayDate(week, index).getDate()}</Text>
-                <View style={styles.mealIcon}>{planned && <MealIcon color={colors.surface} />}</View>
+                <View style={styles.mealIcon}>{planned && <MealIcon color={colors.onPrimary} />}</View>
               </View>;
             })}</View>
             {plan.dirty && <Text style={styles.note}>Guarda al final del domingo antes de cambiar de semana.</Text>}
@@ -88,7 +90,7 @@ function WeekContent({ user, week, onWeekChange, toolbar }: { user: User | null;
     </KeyboardAvoidingView>
   </SafeAreaView>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' }, intro: { paddingVertical: 30, gap: 10 },
   kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 2, color: colors.ink },
@@ -107,11 +109,11 @@ const styles = StyleSheet.create({
   arrowText: { color: colors.primaryDark, fontSize: 30 }, dimmed: { opacity: 0.3 },
   calendarDays: { flexDirection: 'row', gap: 4 }, calendarDay: { flex: 1, alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: ui.radius.control, paddingVertical: 8, gap: 4 },
   calendarLabel: { fontSize: 11, color: colors.muted }, calendarNumber: { fontSize: 16, fontWeight: '700', color: colors.ink },
-  plannedDay: { backgroundColor: colors.primaryDark }, plannedText: { color: colors.surface }, mealIcon: { height: 20 },
+  plannedDay: { backgroundColor: colors.primaryDark }, plannedText: { color: colors.onPrimary }, mealIcon: { height: 20 },
   label: { fontSize: 13, fontWeight: '600', color: colors.ink },
   input: { minHeight: 48, textAlignVertical: 'top', padding: 12, borderWidth: 1, borderColor: colors.controlBorder,
     borderRadius: ui.radius.control, backgroundColor: colors.input, fontSize: 16, color: colors.ink },
   footer: { gap: 10, marginTop: 20, marginBottom: 16 }, loader: { padding: 40 },
   errorBox: { backgroundColor: colors.errorBackground, borderRadius: ui.radius.control, padding: 16, gap: 10, marginBottom: 16 },
   error: { color: colors.danger, lineHeight: 22 },
-});
+}));

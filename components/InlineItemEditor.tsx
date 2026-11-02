@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { UNITS } from '../constants/units';
 import { parseItemInput } from '../services/shoppingLogic';
 import type { LocalShoppingItem, ShoppingItemInput } from '../types/shopping';
@@ -13,6 +14,7 @@ type Props = {
   onSave: (input: ShoppingItemInput) => Promise<boolean>; onCancel: () => void;
 };
 export function InlineItemEditor({ item, disabled, onSave, onCancel }: Props) {
+  const { colors, styles } = useStyles();
   const [name, setName] = useState(item.name);
   const [quantity, setQuantity] = useState(item.quantity?.toString() ?? '');
   const [unit, setUnit] = useState(item.unit ?? 'unidad');
@@ -40,7 +42,7 @@ export function InlineItemEditor({ item, disabled, onSave, onCancel }: Props) {
     </View>
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   editor: { padding: 14, gap: 8, backgroundColor: colors.primarySoft },
   label: { fontSize: 13, fontWeight: '600', color: colors.ink },
   input: { minHeight: 44, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: colors.controlBorder,
@@ -52,4 +54,4 @@ const styles = StyleSheet.create({
   chipText: { fontSize: 14, color: colors.ink },
   buttons: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }, button: { flex: 1, minWidth: 110 },
   error: { color: colors.danger, fontSize: 14 },
-});
+}));

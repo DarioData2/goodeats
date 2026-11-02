@@ -2,7 +2,8 @@ import { Link, usePathname } from 'expo-router';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 
 const destinations = [
   { href: '/lista', label: 'Mi lista', path: 'M8 4h12v17H4V4h4M9 2h6v4H9zM8 11h8M8 16h6' },
@@ -11,6 +12,7 @@ const destinations = [
 ] as const;
 
 export function BottomNavigation() {
+  const { colors, styles } = useStyles();
   const pathname = usePathname();
   const landmark = Platform.OS === 'web' ? { role: 'navigation' as const } : {};
   return <SafeAreaView edges={['bottom', 'left', 'right']} style={styles.surface}>
@@ -31,11 +33,11 @@ export function BottomNavigation() {
   </SafeAreaView>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   surface: { backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border, flexShrink: 0 },
   bar: { width: '100%', maxWidth: 1080, alignSelf: 'center', flexDirection: 'row', paddingHorizontal: 8, paddingVertical: 6, gap: 4 },
   link: { flex: 1, minHeight: 64, alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 8, paddingHorizontal: 4, borderRadius: ui.radius.control, borderTopWidth: 2, borderTopColor: colors.transparent },
   active: { backgroundColor: colors.primarySoft, borderTopColor: colors.primary },
   label: { color: colors.muted, fontSize: 12, fontWeight: '600', textAlign: 'center' },
   activeLabel: { color: colors.primary, fontWeight: '800' },
-});
+}));

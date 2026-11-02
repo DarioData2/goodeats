@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button } from './Button';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import type { useCloudShoppingList } from '../hooks/useCloudShoppingList';
 import { Heading } from './Heading';
 
 export function CloudListControls({ list }: { list: ReturnType<typeof useCloudShoppingList> }) {
+  const { colors, styles } = useStyles();
   const [name, setName] = useState('Mi lista de compras');
   const disabled = list.loading || list.saving;
   return <View style={styles.card}>
@@ -28,10 +30,10 @@ export function CloudListControls({ list }: { list: ReturnType<typeof useCloudSh
     <Text style={styles.note}>Tus productos locales siguen en este dispositivo. Las listas de tu cuenta se guardan por separado.</Text>
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   card: { padding: 20, borderRadius: ui.radius.card, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, gap: 12, marginBottom: 24 },
   title: { color: colors.ink, fontSize: 17, fontWeight: '700' }, text: { color: colors.ink }, note: { color: colors.muted, lineHeight: 21 },
   options: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, option: { padding: 14, borderRadius: ui.radius.control, backgroundColor: colors.primarySoft },
   selected: { backgroundColor: colors.primary },
   input: { padding: 14, minHeight: 50, borderRadius: ui.radius.control, borderWidth: 1, borderColor: colors.controlBorder, color: colors.ink, backgroundColor: colors.input },
-});
+}));

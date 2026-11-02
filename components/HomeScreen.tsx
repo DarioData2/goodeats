@@ -2,7 +2,8 @@ import type { User } from '@supabase/supabase-js';
 import { Link } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { AppHeader } from './AppHeader';
 import { MealIcon } from './MealIcon';
 import { Heading } from './Heading';
@@ -14,6 +15,7 @@ const benefits = [
 ];
 
 function HomeLink({ href, label, outline = false }: { href: '/lista' | '/menu' | '/login' | '/recetas'; label: string; outline?: boolean }) {
+  const { styles } = useStyles();
   return <Link href={href} asChild><Pressable accessibilityRole="link"
     style={StyleSheet.flatten([styles.link, outline && styles.outline])}>
     <Text style={[styles.linkText, outline && styles.outlineText]}>{label}</Text>
@@ -21,6 +23,7 @@ function HomeLink({ href, label, outline = false }: { href: '/lista' | '/menu' |
 }
 
 export function HomeScreen({ user }: { user: User | null }) {
+  const { colors, styles } = useStyles();
   const wide = useWindowDimensions().width >= 850;
   return <SafeAreaView style={styles.safe}>
     <ScrollView contentContainerStyle={styles.scroll}>
@@ -101,7 +104,7 @@ export function HomeScreen({ user }: { user: User | null }) {
     </ScrollView>
   </SafeAreaView>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' },
   hero: { paddingTop: 36, paddingBottom: 32, gap: 28 }, heroWide: { flexDirection: 'row', alignItems: 'center', gap: 40, paddingVertical: 48 },
@@ -118,7 +121,7 @@ const styles = StyleSheet.create({
   previewKicker: { fontSize: 10, fontWeight: '700', letterSpacing: 1.2, color: colors.primaryDark }, previewTitle: { fontSize: 23, fontWeight: '700', color: colors.ink },
   exampleMeal: { backgroundColor: colors.accentSoft, padding: 12, borderRadius: ui.radius.control, gap: 5 }, day: { fontSize: 10, fontWeight: '700', color: colors.accentText, letterSpacing: 0.7 },
   dish: { fontSize: 16, fontWeight: '600', color: colors.ink }, previewListTitle: { fontSize: 13, fontWeight: '700', color: colors.ink, marginTop: 6 },
-  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 10 }, previewCheck: { width: 20, height: 20, borderRadius: 6, backgroundColor: colors.primaryDark, color: colors.surface, textAlign: 'center', fontWeight: '700' },
+  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 10 }, previewCheck: { width: 20, height: 20, borderRadius: 6, backgroundColor: colors.primaryDark, color: colors.onPrimary, textAlign: 'center', fontWeight: '700' },
   emptyCheck: { width: 20, height: 20, borderWidth: 1, borderColor: colors.controlBorder, borderRadius: 6 }, previewItem: { flex: 1, fontSize: 14, color: colors.ink }, quantity: { fontSize: 12, color: colors.muted },
   exampleNote: { fontSize: 11, lineHeight: 17, color: colors.muted, marginTop: 4 },
   benefits: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 24, gap: 24 }, benefitsWide: { flexDirection: 'row', gap: 28 },
@@ -132,4 +135,4 @@ const styles = StyleSheet.create({
   features: { gap: 9 }, feature: { fontSize: 14, lineHeight: 22, color: colors.ink }, storageNote: { flexGrow: 1, fontSize: 12, lineHeight: 19, color: colors.muted },
   account: { marginTop: 24, backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 24, gap: 18 }, accountWide: { flexDirection: 'row', alignItems: 'center' },
   accountCopy: { flex: 1, gap: 7 }, accountTitle: { fontSize: 20, fontWeight: '700', color: colors.ink }, footer: { fontSize: 12, lineHeight: 19, textAlign: 'center', color: colors.ink, paddingVertical: 28 },
-});
+}));

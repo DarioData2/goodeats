@@ -1,9 +1,11 @@
 import { useId } from 'react';
 import type { SelectProps } from './CompactSelect';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Native HTML select provides arrow-key navigation and one tab stop per field.
 export function CompactSelect({ label, values, value, onChange, disabled }: SelectProps) {
+  const { colors } = useTheme();
   const id = useId();
   return <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0, fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
     <label htmlFor={id} style={{ color: colors.ink, fontSize: 15, fontWeight: 700 }}>{label}</label>

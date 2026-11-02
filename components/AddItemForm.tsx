@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { LocalShoppingItem as ShoppingItem, ShoppingItemInput } from '../types/shopping';
 import { UNITS } from '../constants/units';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { parseItemInput } from '../services/shoppingLogic';
 import { Button } from './Button';
 import { CompactSelect } from './CompactSelect';
@@ -13,6 +14,7 @@ type Props = {
   onSubmit: (input: ShoppingItemInput) => Promise<boolean>; onCancel: () => void;
 };
 export function AddItemForm({ editing, disabled, saving, onSubmit, onCancel }: Props) {
+  const { styles } = useStyles();
   const [name, setName] = useState(editing?.name ?? '');
   const [quantity, setQuantity] = useState(editing?.quantity?.toString() ?? '');
   const [unit, setUnit] = useState<string>(editing?.unit ?? 'unidad');
@@ -41,7 +43,7 @@ export function AddItemForm({ editing, disabled, saving, onSubmit, onCancel }: P
     <Text style={styles.hint}>Una cosa menos en qué pensar.</Text>
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: ui.radius.card, padding: 24, borderWidth: 1, borderColor: colors.border, gap: 12 },
   eyebrow: { fontSize: 11, letterSpacing: 1.5, fontWeight: '700', color: colors.primaryDark },
   title: { color: colors.ink, fontSize: 23, fontWeight: '700', marginBottom: 8 },
@@ -51,4 +53,4 @@ const styles = StyleSheet.create({
   chip: { borderWidth: 1, borderColor: colors.controlBorder, minHeight: 44, paddingHorizontal: 13, justifyContent: 'center', borderRadius: ui.radius.control },
   selected: { backgroundColor: colors.primary, borderColor: colors.primary }, chipText: { fontSize: 14, color: colors.muted },
   error: { color: colors.danger, fontSize: 14 }, hint: { textAlign: 'center', color: colors.muted, fontSize: 12, marginTop: 4 },
-});
+}));

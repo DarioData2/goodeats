@@ -2,11 +2,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { LocalShoppingItem as Item, ShoppingItemInput } from '../types/shopping';
 import { InlineItemEditor } from './InlineItemEditor';
 import { ShoppingItem } from './ShoppingItem';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 type Props = { items: Item[]; disabled: boolean; editingId: string | null; onToggle: (id: string) => void;
   onEdit: (item: Item) => void; onDelete: (id: string) => void;
   onSave: (id: string, input: ShoppingItemInput) => Promise<boolean>; onCancel: () => void };
 export function ShoppingList({ items, disabled, editingId, onToggle, onEdit, onDelete, onSave, onCancel }: Props) {
+  const { styles } = useStyles();
   if (!items.length) return <View style={styles.empty}>
     <Text style={styles.symbol}>＋</Text><Text style={styles.title}>Tu próxima compra empieza aquí</Text>
     <Text style={styles.text}>Agrega tu primer producto y lleva todo lo que necesitas en una sola lista.</Text>
@@ -16,10 +18,10 @@ export function ShoppingList({ items, disabled, editingId, onToggle, onEdit, onD
     {editingId === item.id && <InlineItemEditor item={item} disabled={disabled} onSave={input => onSave(item.id, input)} onCancel={onCancel} />}
   </View>)}</View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   list: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, overflow: 'hidden' },
   separator: { borderTopWidth: 1, borderTopColor: colors.border },
   empty: { backgroundColor: colors.surface, borderWidth: 1, borderStyle: 'dashed', borderColor: colors.border, borderRadius: ui.radius.card, padding: 32, alignItems: 'center', gap: 14 },
   symbol: { fontSize: 32, color: colors.ink, backgroundColor: colors.primarySoft, width: 64, height: 64, textAlign: 'center', lineHeight: 64, borderRadius: 20 },
   title: { color: colors.ink, fontSize: 19, fontWeight: '600', textAlign: 'center' }, text: { color: colors.muted, fontSize: 15, lineHeight: 23, textAlign: 'center', maxWidth: 340 },
-});
+}));

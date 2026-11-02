@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { Link } from 'expo-router';
 import { randomUUID } from 'expo-crypto';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { parseVideoUrl, validateVideoBookmark, validateVideoSource, type VideoBookmark, type VideoSource } from '../services/videoRecipes';
 import { Button } from './Button';
 import { Heading } from './Heading';
 import { RecipeField } from './RecipeField';
 
 export function VideoSourceLink({ source }: { source: VideoSource }) {
+  const { styles } = useStyles();
   const safe = validateVideoSource(source);
   return <View style={styles.stack}>
     <Text style={styles.hint}>Fuente: {safe.platform}{safe.author ? ` · ${safe.author}` : ''}</Text>
@@ -17,6 +19,7 @@ export function VideoSourceLink({ source }: { source: VideoSource }) {
 }
 
 export function VideoImport({ busy, onSave, onCancel }: { busy: boolean; onSave: (bookmark: VideoBookmark) => Promise<void>; onCancel: () => void }) {
+  const { styles } = useStyles();
   const [id] = useState(randomUUID);
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
@@ -49,8 +52,8 @@ export function VideoImport({ busy, onSave, onCancel }: { busy: boolean; onSave:
     <Button label="Cancelar importación" secondary disabled={busy} onPress={onCancel} />
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: ui.radius.card, borderWidth: 1, borderColor: colors.border, padding: 18, gap: 16 },
   stack: { gap: 8 }, title: { fontSize: 20, fontWeight: '700', color: colors.ink }, label: { fontSize: 16, fontWeight: '700', color: colors.ink },
   hint: { fontSize: 14, lineHeight: 21, color: colors.muted }, link: { color: colors.primary, fontSize: 16, lineHeight: 24, paddingVertical: 12, textDecorationLine: 'underline' },
-});
+}));

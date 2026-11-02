@@ -2,7 +2,8 @@ import { useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { dateKey, dayDate } from '../services/menuDates';
 import { recipeLines } from '../services/recipeLogic';
 import { useDailyRecipe } from '../hooks/useDailyRecipe';
@@ -15,6 +16,7 @@ export function RecipesScreen({ user, toolbar }: { user: User | null; toolbar?: 
   return <RecipeDay key={date} user={user} date={date} onDateChange={setDate} toolbar={toolbar} />;
 }
 function RecipeDay({ user, date, onDateChange, toolbar }: { user: User | null; date: string; onDateChange: (date: string) => void; toolbar?: ReactNode }) {
+  const { colors, styles } = useStyles();
   const plan = useDailyRecipe(user?.id ?? 'local', date);
   const [cooking, setCooking] = useState(false);
   const disabled = !plan.ready || plan.loading || plan.saving;
@@ -72,7 +74,7 @@ function RecipeDay({ user, date, onDateChange, toolbar }: { user: User | null; d
     </KeyboardAvoidingView>
   </SafeAreaView>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' }, intro: { paddingVertical: 30, gap: 10 },
   kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 1.2, color: colors.ink }, heading: { fontSize: 34, fontWeight: '700', color: colors.ink },
@@ -87,4 +89,4 @@ const styles = StyleSheet.create({
   step: { flexDirection: 'row', gap: 10 }, stepNumber: { width: 28, height: 28, borderRadius: 8, textAlign: 'center', lineHeight: 28, backgroundColor: colors.accentSoft, color: colors.ink, fontWeight: '700' },
   stepText: { flex: 1, fontSize: 16, lineHeight: 24, color: colors.ink }, note: { marginVertical: 18, fontSize: 13, lineHeight: 20, textAlign: 'center', color: colors.ink },
   errorBox: { padding: 16, backgroundColor: colors.errorBackground, borderRadius: ui.radius.control, gap: 10, marginBottom: 16 }, error: { color: colors.danger, lineHeight: 22 },
-});
+}));

@@ -3,13 +3,15 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { User } from '@supabase/supabase-js';
 import { signIn, signOut, signUp } from '../services/authService';
 import { supabaseConfigurationError } from '../lib/supabase';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { Button } from './Button';
 import { Heading } from './Heading';
 import { ProfilePanel } from './ProfilePanel';
 import { RecipeField } from './RecipeField';
 
 export function AccountPanel({ user, disabled }: { user: User | null; disabled: boolean }) {
+  const { colors, styles } = useStyles();
   const [register, setRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -81,7 +83,7 @@ export function AccountPanel({ user, disabled }: { user: User | null; disabled: 
     {message && <Text accessibilityLiveRegion="polite" style={styles.note}>{message}</Text>}
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 20, gap: 12, marginBottom: 24 },
   title: { fontSize: 17, fontWeight: '700', color: colors.ink }, note: { color: colors.muted, lineHeight: 21 },
   label: { color: colors.ink, fontSize: 15, fontWeight: '600' },
@@ -92,4 +94,4 @@ const styles = StyleSheet.create({
   passwordToggle: { minHeight: 48, paddingHorizontal: 14, justifyContent: 'center', alignItems: 'center' },
   passwordToggleText: { color: colors.primaryDark, fontSize: 14, fontWeight: '700' },
   error: { color: colors.danger, lineHeight: 22 },
-});
+}));

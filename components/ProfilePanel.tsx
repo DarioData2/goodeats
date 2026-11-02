@@ -7,12 +7,13 @@ import { randomUUID } from 'expo-crypto';
 import { useAccount } from '../contexts/AuthContext';
 import { profileNames, validateProfileNames, validateAvatar } from '../services/profileLogic';
 import { readProfile, saveProfile, type AvatarChange } from '../services/profileService';
-import { colors } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { Button } from './Button';
 import { Heading } from './Heading';
 import { RecipeField } from './RecipeField';
 
 export function ProfilePanel({ user, disabled, onBusyChange }: { user: User; disabled: boolean; onBusyChange: (busy: boolean) => void }) {
+  const { styles } = useStyles();
   const { avatarUrl, applyUser } = useAccount();
   const names = profileNames(user.user_metadata);
   const [editing, setEditing] = useState(false);
@@ -99,7 +100,7 @@ export function ProfilePanel({ user, disabled, onBusyChange }: { user: User; dis
     </> : <Button label={busy ? 'Cargando perfil…' : 'Editar perfil'} secondary disabled={disabled || busy} onPress={() => void edit()} />}
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   stack: { gap: 14 }, identity: { flexDirection: 'row', alignItems: 'center', gap: 14 }, copy: { flex: 1, minWidth: 0 },
   photo: { width: 72, height: 72, borderRadius: 36 }, placeholder: { backgroundColor: colors.accentSoft, justifyContent: 'center', alignItems: 'center' },
   initials: { fontSize: 24, fontWeight: '700', color: colors.accentText }, name: { fontSize: 18, fontWeight: '700', color: colors.ink },
@@ -107,4 +108,4 @@ const styles = StyleSheet.create({
   success: { padding: 14, borderRadius: 12, backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: colors.primary },
   successText: { color: colors.primaryDark, fontWeight: '700', lineHeight: 22 },
   failure: { padding: 14, borderRadius: 12, backgroundColor: colors.errorBackground, borderWidth: 1, borderColor: colors.danger },
-});
+}));

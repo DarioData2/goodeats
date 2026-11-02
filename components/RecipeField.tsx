@@ -1,8 +1,10 @@
 import { Platform, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { useEffect, useRef } from 'react';
 
 export function RecipeField({ label, fieldId, error, focusSignal, ...props }: TextInputProps & { label: string; fieldId: string; error?: string; focusSignal?: object }) {
+  const { colors, styles } = useStyles();
   const inputRef = useRef<TextInput>(null);
   useEffect(() => { if (focusSignal) inputRef.current?.focus(); }, [focusSignal]);
   const errorId = `${fieldId}-error`;
@@ -13,8 +15,8 @@ export function RecipeField({ label, fieldId, error, focusSignal, ...props }: Te
     {!!error && <Text nativeID={errorId} style={styles.error}>{error}</Text>}
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   field: { gap: 6 }, label: { color: colors.ink, fontSize: 15, fontWeight: '700' },
   input: { minHeight: 48, padding: 12, color: colors.ink, fontSize: 16, backgroundColor: colors.input, borderWidth: 1, borderColor: colors.controlBorder, borderRadius: ui.radius.control },
   multiline: { minHeight: 140, textAlignVertical: 'top' }, invalid: { borderColor: colors.danger, borderWidth: 2 }, error: { color: colors.danger, fontSize: 14, lineHeight: 20 },
-});
+}));

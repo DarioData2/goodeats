@@ -3,7 +3,8 @@ import type { User } from '@supabase/supabase-js';
 import { randomUUID } from 'expo-crypto';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { usePlanner } from '../hooks/usePlanner';
 import { AISLES, UNITS, MEAL_SLOTS, addSavedVideo, completeSavedVideo, blankWeek, planFromLegacyMenu, generateGroceries, normalize, positiveNumber, purchaseKey, validateRecipe, type Recipe, type WeekPlan } from '../services/plannerLogic';
 import { DAYS } from '../services/menuStorage';
@@ -27,6 +28,7 @@ type Mode = 'recipes' | 'menu' | 'shopping';
 type Store = ReturnType<typeof usePlanner>;
 const titles = { recipes: 'Mis recetas', menu: 'Mi menú semanal', shopping: 'Compras del menú' };
 export function PlannerWorkspace({ user, mode }: { user: User | null; mode: Mode }) {
+  const { colors, styles } = useStyles();
   const [legacy, setLegacy] = useState(false);
   const [draftOpen, setDraftOpen] = useState(false);
   const owner = user?.id ?? 'local';
@@ -53,6 +55,7 @@ function Choices({ values, value, onChange, label, disabled = false }: { values:
 type DraftIngredient = IngredientDraft;
 const emptyIngredient = (): DraftIngredient => ({ name: '', quantity: '', unit: 'unidad', aisle: 'Otros' });
 function Library({ store, onDraftChange }: { store: Store; onDraftChange: (value: boolean) => void }) {
+  const { colors, styles } = useStyles();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('Todas');
   const [editing, setEditing] = useState<Recipe | 'new' | null>(null);
@@ -106,6 +109,7 @@ function Library({ store, onDraftChange }: { store: Store; onDraftChange: (value
   </View>;
 }
 function RecipeEditor({ recipe, bookmark, busy, onSave, onCancel }: { recipe?: Recipe; bookmark?: VideoBookmark; busy: boolean; onSave: (recipe: Recipe) => Promise<void>; onCancel: () => void }) {
+  const { styles } = useStyles();
   const [id] = useState(() => recipe?.id ?? bookmark?.id ?? randomUUID());
   const source = recipe?.source ?? bookmark?.source;
   const [author, setAuthor] = useState(source?.author ?? '');
@@ -149,6 +153,7 @@ function RecipeEditor({ recipe, bookmark, busy, onSave, onCancel }: { recipe?: R
 }
 
 function Weekly({ store, owner, shopping, onDraftChange }: { store: Store; owner: string; shopping: boolean; onDraftChange: (value: boolean) => void }) {
+  const { colors, styles } = useStyles();
   const [week, setWeek] = useState(weekStart);
   const [draft, setDraft] = useState<WeekPlan | null>(null);
   const [slot, setSlot] = useState<[number, number] | null>(null);
@@ -223,7 +228,7 @@ function Weekly({ store, owner, shopping, onDraftChange }: { store: Store; owner
     </View>}
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   fill: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, padding: 20 }, container: { width: '100%', maxWidth: 1080, alignSelf: 'center' },
   intro: { gap: 12, paddingVertical: 28 }, heading: { color: colors.ink, fontSize: 32, fontWeight: '700' }, title: { color: colors.ink, fontSize: 20, fontWeight: '700' },
   body: { color: colors.ink, fontSize: 16, lineHeight: 24 }, hint: { color: colors.muted, fontSize: 14, lineHeight: 21 }, label: { color: colors.ink, fontSize: 15, fontWeight: '700' },
@@ -234,4 +239,4 @@ const styles = StyleSheet.create({
   error: { color: colors.danger, fontSize: 14, lineHeight: 22 }, returnBar: { padding: 12 }, calendar: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10 }, range: { color: colors.ink, fontWeight: '700', textAlign: 'center' },
   calendarDays: { flexDirection: 'row', gap: 2 }, calendarDay: { flex: 1, minHeight: 54, borderRadius: 8, borderWidth: 2, borderColor: colors.transparent, backgroundColor: colors.primarySoft, paddingVertical: 6, alignItems: 'center', justifyContent: 'center', gap: 6 }, planned: { backgroundColor: colors.primaryDark }, currentDay: { borderColor: colors.ink }, dayText: { fontSize: 12, color: colors.ink },
   meal: { borderTopWidth: 1, borderColor: colors.border, paddingTop: 14, gap: 10 }, grocery: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: 1, borderColor: colors.border, paddingVertical: 10 }, groceryCopy: { flex: 1 }, check: { color: colors.primary, fontSize: 26 }, crossed: { textDecorationLine: 'line-through', color: colors.muted },
-});
+}));

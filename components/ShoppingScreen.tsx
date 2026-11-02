@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AddItemForm } from '../components/AddItemForm';
 import { ShoppingList } from '../components/ShoppingList';
 import { Button } from '../components/Button';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { useShoppingList } from '../hooks/useShoppingList';
 import { useCloudShoppingList } from '../hooks/useCloudShoppingList';
 import { AppHeader } from './AppHeader';
@@ -26,6 +27,7 @@ function CloudShoppingScreen({ user, toolbar }: { user: User; toolbar?: ReactNod
 function ShoppingContent({ list, cloud, user, toolbar }: {
   list: ReturnType<typeof useShoppingList>; cloud?: ReturnType<typeof useCloudShoppingList>; user: User | null; toolbar?: ReactNode;
 }) {
+  const { colors, styles } = useStyles();
   const [editing, setEditing] = useState<ShoppingItem | null>(null);
   const wide = useWindowDimensions().width >= 850;
   const purchased = list.items.filter(item => item.purchased).length;
@@ -70,7 +72,7 @@ function ShoppingContent({ list, cloud, user, toolbar }: {
     </KeyboardAvoidingView>
   </SafeAreaView>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
   container: { width: '100%', maxWidth: 1080, alignSelf: 'center' },
   intro: { paddingVertical: 32, gap: 10 }, kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 2, color: colors.ink },
@@ -81,5 +83,5 @@ const styles = StyleSheet.create({
   pending: { fontSize: 13, fontWeight: '600', color: colors.ink }, footer: { gap: 14, marginTop: 4 }, localNote: { color: colors.ink, fontSize: 12 },
   bottom: { color: colors.ink, fontSize: 12, textAlign: 'center', marginTop: 40, marginBottom: 12 },
   errorBox: { padding: 16, backgroundColor: colors.errorBackground, borderRadius: ui.radius.control, marginBottom: 20, gap: 12 }, error: { color: colors.danger, lineHeight: 22 },
-});
+}));
 

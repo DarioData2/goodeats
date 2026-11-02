@@ -5,13 +5,19 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAccount } from '../../contexts/AuthContext';
 import { startSupabaseAuthLifecycle } from '../../lib/supabase';
-import { colors } from '../../constants/theme';
+import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
 import { BottomNavigation } from '../../components/BottomNavigation';
 export default function RootLayout() {
   useEffect(startSupabaseAuthLifecycle, []);
-  return <SafeAreaProvider><AuthProvider><StatusBar style="dark" /><SessionRoutes /></AuthProvider></SafeAreaProvider>;
+  return <SafeAreaProvider><ThemeProvider><ThemedApp /></ThemeProvider></SafeAreaProvider>;
+}
+function ThemedApp() {
+  const { mode, colors, ready } = useTheme();
+  if (!ready) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
+  return <AuthProvider><StatusBar style={mode === 'dark' ? 'light' : 'dark'} /><SessionRoutes /></AuthProvider>;
 }
 function SessionRoutes() {
+  const { colors } = useTheme();
   const auth = useAccount();
   if (auth.loading) return <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
     <ActivityIndicator accessibilityLabel="Recuperando sesión" color={colors.primary} />

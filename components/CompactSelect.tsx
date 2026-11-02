@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors, ui } from '../constants/theme';
+import { ui } from '../constants/theme';
+import { createThemedStyles } from '../contexts/ThemeContext';
 import { Button } from './Button';
 import { Heading } from './Heading';
 
 export type SelectProps = { label: string; values: readonly string[]; value: string; onChange: (value: string) => void; disabled?: boolean };
 export function CompactSelect({ label, values, value, onChange, disabled }: SelectProps) {
+  const { styles } = useStyles();
   const [open, setOpen] = useState(false);
   return <View style={{ gap: 6 }}>
     <Text style={styles.label}>{label}</Text>
@@ -21,9 +23,9 @@ export function CompactSelect({ label, values, value, onChange, disabled }: Sele
     </Modal>
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => StyleSheet.create({
   label: { color: colors.ink, fontSize: 15, fontWeight: '700' }, text: { color: colors.ink, fontSize: 16 },
   control: { minHeight: 48, justifyContent: 'center', borderWidth: 1, borderColor: colors.controlBorder, borderRadius: ui.radius.control, backgroundColor: colors.surface, padding: 12, marginBottom: 4 },
   backdrop: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: colors.overlay },
   panel: { maxHeight: '80%', borderRadius: ui.radius.card, backgroundColor: colors.surface, padding: 20, gap: 16 },
-});
+}));
