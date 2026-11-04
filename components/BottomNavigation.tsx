@@ -9,6 +9,7 @@ const destinations = [
   { href: '/lista', label: 'Mi lista', path: 'M8 4h12v17H4V4h4M9 2h6v4H9zM8 11h8M8 16h6' },
   { href: '/menu', label: 'Mi menú', path: 'M4 5h16v16H4zM8 2v6M16 2v6M4 10h16M8 14h2M14 14h2M8 18h2' },
   { href: '/recetas', label: 'Mis recetas', path: 'M12 5C9 3 5 3 2 4v16c3-1 7-1 10 1m0-16c3-2 7-2 10-1v16c-3-1-7-1-10 1V5zM5 8h4M5 12h4M15 8h4M15 12h4' },
+  { href: '/hidratacion', label: 'Mi salud', path: 'M12 2C9 7 5 10 5 15a7 7 0 0 0 14 0c0-5-4-8-7-13ZM8 15a4 4 0 0 0 4 4' },
 ] as const;
 
 export function BottomNavigation() {
