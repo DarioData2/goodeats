@@ -47,7 +47,9 @@ export function HydrationScreen({ user }: { user: User | null }) {
   }
   return <SafeAreaView style={styles.fill}><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
     <View style={styles.container}><AppHeader user={user} />
-      <View style={styles.intro}><Text style={styles.kicker}>MI BIENESTAR</Text><Heading style={styles.heading}>Hidratación</Heading><Text style={styles.body}>Un registro sencillo del agua que tomas durante el día.</Text><Text style={styles.note}>Solo en este dispositivo{user ? ' · separado por cuenta' : ''}. Sin sincronización con Supabase.</Text></View>
+      <View style={styles.intro}><Text style={styles.kicker}>MI BIENESTAR</Text><Heading style={styles.heading}>Hidratación</Heading><Text style={styles.body}>Un registro sencillo del agua que tomas durante el día.</Text><Text style={styles.note}>{user ? 'Guardado en tu cuenta de Supabase. Tu agua y tu meta se recuperan al iniciar sesión.' : 'Sin sesión: guardado solo en este dispositivo. Inicia sesión para guardar en tu cuenta.'}</Text>
+        {user && <Button label={store.busy ? 'Actualizando…' : 'Actualizar desde mi cuenta'} secondary disabled={store.busy || editingGoal} onPress={() => void store.reload()} />}
+      </View>
       {!!store.error && <Text accessibilityRole="alert" style={styles.error}>{store.error}</Text>}
       {!store.ready ? store.busy ? <ActivityIndicator color={colors.primary} accessibilityLabel="Cargando hidratación" /> : <Button label="Volver a cargar" onPress={() => void store.reload()} /> : <View style={styles.stack}>
         {!!notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{notice}</Text>}
@@ -74,7 +76,7 @@ export function HydrationScreen({ user }: { user: User | null }) {
         <View style={styles.card}><Heading level={2} style={styles.title}>Registros de hoy</Heading>
           {!entries.length ? <Text style={styles.note}>Aún no hay registros. Agrega el agua que tomaste para empezar.</Text> : <><Text style={styles.note}>{entries.length} {entries.length === 1 ? 'registro' : 'registros'} en total</Text>{entries.slice(-10).reverse().map(entry => <View key={entry.id} style={styles.row}><Text style={styles.body}>{entry.ml} ml</Text><Text style={styles.note}>{new Date(entry.at).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</Text></View>)}
             {entries.length > 10 && <Text style={styles.note}>Se muestran los últimos 10 registros; el total incluye todos.</Text>}
-            <Button label="Deshacer último registro de hoy" secondary disabled={store.busy} onPress={async () => { if (await store.save(data => undoWater(data, today))) setNotice('Último registro deshecho.'); }} /></>}
+            <Button label="Deshacer último registro de hoy" secondary disabled={store.busy} onPress={async () => { if (await store.save(data => undoWater(data, today, entries.at(-1)?.id))) setNotice('Último registro deshecho.'); }} /></>}
         </View>
         <View style={styles.card}><Heading level={2} style={styles.title}>Esta semana</Heading><Text style={styles.note}>Del {shortDate(dayDate(week, 0))} al {shortDate(dayDate(week, 6))}</Text>
           {DAYS.map((day, index) => { const date = dateKey(dayDate(week, index)); const records = store.data.days[date] ?? []; return <View key={date} style={styles.row}><Text style={styles.body}>{day}{date === today ? ' · hoy' : ''}</Text><Text style={styles.note}>{date > today ? '—' : records.length ? `${waterTotal(records).toLocaleString('es-CL')} ml` : 'Sin registro'}</Text></View>; })}

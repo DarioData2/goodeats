@@ -23,6 +23,7 @@ import { ModuleViews } from './ModuleViews';
 import { recipeFormErrors, type IngredientDraft } from '../services/recipeForm';
 import { VideoImport, VideoSourceLink } from './VideoImport';
 import type { VideoBookmark } from '../services/videoRecipes';
+import { IngredientIcon } from './IngredientIcon';
 
 type Mode = 'recipes' | 'menu' | 'shopping';
 type Store = ReturnType<typeof usePlanner>;
@@ -223,7 +224,7 @@ function Weekly({ store, owner, shopping, onDraftChange }: { store: Store; owner
         const key = purchaseKey(item); const checked = (store.data.purchased[week] ?? []).includes(key);
         return <Pressable key={item.key} accessibilityRole="checkbox" aria-checked={checked} accessibilityState={{ checked, disabled }} accessibilityLabel={`${item.name}, ${formatQuantity(item.quantity)} ${item.unit}`} disabled={disabled}
           onPress={() => void store.save(data => { const keys = data.purchased[week] ?? []; return { ...data, purchased: { ...data.purchased, [week]: checked ? keys.filter(value => value !== key) : [...keys, key] } }; })} style={styles.grocery}>
-          <Text style={styles.check}>{checked ? '☑' : '☐'}</Text><View style={styles.groceryCopy}><Text style={[styles.body, checked && styles.crossed]}>{item.name}</Text><Text style={styles.hint}>{formatQuantity(item.quantity)} {item.unit}</Text></View></Pressable>;
+          <Text style={styles.check}>{checked ? '☑' : '☐'}</Text><IngredientIcon name={item.name} /><View style={styles.groceryCopy}><Text style={[styles.body, checked && styles.crossed]}>{item.name}</Text><Text style={styles.hint}>{formatQuantity(item.quantity)} {item.unit}</Text></View></Pressable>;
       })}</View> : null; })}
     </View>}
   </View>;

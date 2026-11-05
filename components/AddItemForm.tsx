@@ -9,6 +9,7 @@ import { Button } from './Button';
 import { CompactSelect } from './CompactSelect';
 import { Heading } from './Heading';
 import { RecipeField } from './RecipeField';
+import { IngredientNameField } from './IngredientNameField';
 type Props = {
   editing: ShoppingItem | null; disabled: boolean; saving: boolean;
   onSubmit: (input: ShoppingItemInput) => Promise<boolean>; onCancel: () => void;
@@ -31,7 +32,7 @@ export function AddItemForm({ editing, disabled, saving, onSubmit, onCancel }: P
   return <View style={styles.card}>
     <Text style={styles.eyebrow}>{editing ? 'AJUSTA TU LISTA' : '¿QUÉ HACE FALTA?'}</Text>
     <Heading level={2} style={styles.title}>{editing ? 'Editar producto' : 'Agregar producto'}</Heading>
-    <RecipeField label="Producto" fieldId="new-item-name" error={invalidField === 'name' ? error ?? undefined : undefined} focusSignal={invalidField === 'name' ? focusSignal : undefined} placeholder="Ej. Tomates"
+    <IngredientNameField label="Producto" fieldId="new-item-name" error={invalidField === 'name' ? error ?? undefined : undefined} focusSignal={invalidField === 'name' ? focusSignal : undefined} placeholder="Ej. Tomates"
       value={name} onChangeText={setName} editable={!disabled} style={styles.input} maxLength={120}
       returnKeyType="done" onSubmitEditing={() => void submit()} />
     <RecipeField label="Cantidad (opcional)" fieldId="new-item-quantity" error={invalidField === 'quantity' ? error ?? undefined : undefined} focusSignal={invalidField === 'quantity' ? focusSignal : undefined} placeholder="Ej. 6"

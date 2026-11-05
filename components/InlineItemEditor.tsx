@@ -8,6 +8,7 @@ import type { LocalShoppingItem, ShoppingItemInput } from '../types/shopping';
 import { Button } from './Button';
 import { CompactSelect } from './CompactSelect';
 import { RecipeField } from './RecipeField';
+import { IngredientNameField } from './IngredientNameField';
 
 type Props = {
   item: LocalShoppingItem; disabled: boolean;
@@ -29,7 +30,7 @@ export function InlineItemEditor({ item, disabled, onSave, onCancel }: Props) {
     await onSave(input);
   }
   return <View style={styles.editor}>
-    <RecipeField label="Producto" fieldId={`item-${item.id}-name`} error={invalidField === 'name' ? error ?? undefined : undefined} focusSignal={invalidField === 'name' ? focusSignal : undefined} accessibilityLabel={`Nombre de ${item.name}`} value={name} onChangeText={setName}
+    <IngredientNameField label="Producto" fieldId={`item-${item.id}-name`} error={invalidField === 'name' ? error ?? undefined : undefined} focusSignal={invalidField === 'name' ? focusSignal : undefined} accessibilityLabel={`Nombre de ${item.name}`} value={name} onChangeText={setName}
       editable={!disabled} maxLength={120} style={styles.input} />
     <RecipeField label="Cantidad (opcional)" fieldId={`item-${item.id}-quantity`} error={invalidField === 'quantity' ? error ?? undefined : undefined} focusSignal={invalidField === 'quantity' ? focusSignal : undefined} accessibilityLabel={`Cantidad de ${item.name}`} value={quantity} onChangeText={setQuantity}
       editable={!disabled} keyboardType="decimal-pad" placeholder="Ej. 6" placeholderTextColor={colors.muted}

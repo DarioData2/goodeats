@@ -53,6 +53,7 @@ export function decodeHydration(raw: string | null): HydrationData {
 export function addWater(data: HydrationData, date: string, entry: WaterEntry): HydrationData {
   return decodeHydration(JSON.stringify({ ...data, days: { ...data.days, [date]: [...(data.days[date] ?? []), entry] } }));
 }
-export function undoWater(data: HydrationData, date: string): HydrationData {
+export function undoWater(data: HydrationData, date: string, expectedId?: string): HydrationData {
+  if (expectedId && data.days[date]?.at(-1)?.id !== expectedId) throw new Error('Los registros cambiaron en otro dispositivo. Actualiza desde tu cuenta antes de deshacer.');
   return { ...data, days: { ...data.days, [date]: (data.days[date] ?? []).slice(0, -1) } };
 }

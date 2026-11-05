@@ -1,9 +1,16 @@
 import type { ShoppingItem, ShoppingList } from './shopping';
+import type { HydrationData } from '../services/hydrationLogic';
 
 // Contract for the planned schema. Regenerate from Supabase when it is deployed.
 export type Database = {
   public: {
     Tables: {
+      hydration_profiles: {
+        Row: { user_id: string; payload: HydrationData; revision: number; updated_at: string };
+        Insert: { user_id: string; payload: HydrationData };
+        Update: { payload?: HydrationData };
+        Relationships: [];
+      };
       weekly_menus: {
         Row: { user_id: string; week_start: string; meals: string[][] };
         Insert: { user_id: string; week_start: string; meals: string[][] };

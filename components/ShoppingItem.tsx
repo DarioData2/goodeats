@@ -4,6 +4,7 @@ import type { LocalShoppingItem as Item } from '../types/shopping';
 import { ui } from '../constants/theme';
 import { createThemedStyles } from '../contexts/ThemeContext';
 import { formatQuantity } from '../services/quantities';
+import { IngredientIcon } from './IngredientIcon';
 type Props = { item: Item; disabled: boolean; onToggle: () => void; onEdit: () => void; onDelete: () => void };
 export function ShoppingItem({ item, disabled, onToggle, onEdit, onDelete }: Props) {
   const { colors, styles } = useStyles();
@@ -13,6 +14,7 @@ export function ShoppingItem({ item, disabled, onToggle, onEdit, onDelete }: Pro
       aria-checked={item.purchased} accessibilityState={{ checked: item.purchased, disabled }} onPress={onToggle} disabled={disabled} style={styles.checkTarget}>
       <View style={[styles.checkbox, item.purchased && styles.checked]}><Text style={styles.checkText}>{item.purchased ? '✓' : ''}</Text></View>
     </Pressable>
+    <IngredientIcon name={item.name} />
     <View style={styles.description}>
       <Text style={[styles.name, item.purchased && styles.strike]}>{item.name}</Text>
       {!!details && <Text style={styles.details}>{details}</Text>}
