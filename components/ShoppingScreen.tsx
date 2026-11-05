@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AddItemForm } from '../components/AddItemForm';
 import { ShoppingList } from '../components/ShoppingList';
@@ -29,6 +29,7 @@ function ShoppingContent({ list, cloud, user, toolbar }: {
 }) {
   const { colors, styles } = useStyles();
   const [editing, setEditing] = useState<ShoppingItem | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
   const wide = useWindowDimensions().width >= 850;
   const purchased = list.items.filter(item => item.purchased).length;
   const disabled = list.loading || list.saving || !list.ready;
@@ -62,7 +63,7 @@ function ShoppingContent({ list, cloud, user, toolbar }: {
               <View style={styles.footer}>
                 <Text accessibilityLiveRegion="polite" style={styles.localNote}>{list.saving ? 'Guardando cambios…' : cloud ? list.ready ? 'En tu cuenta · actualiza para ver cambios de otros dispositivos' : 'Selecciona o crea una lista en tu cuenta' : list.ready ? 'Guardado en este dispositivo' : 'Almacenamiento local'}</Text>
                 <Button label="Limpiar comprados" secondary disabled={disabled || purchased === 0}
-                  onPress={() => { void list.clearPurchased().then(saved => { if (saved && editing && list.items.find(item => item.id === editing.id)?.purchased) setEditing(null); }); }} />
+                  onPress={() => setConfirmClear(true)} />
               </View>
             </View>
           </View>
@@ -70,6 +71,21 @@ function ShoppingContent({ list, cloud, user, toolbar }: {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    <Modal visible={confirmClear && purchased > 0} transparent animationType="fade" onRequestClose={() => { if (!list.saving) setConfirmClear(false); }}>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.confirmation} accessibilityViewIsModal>
+          <Heading level={2} style={styles.confirmTitle}>¿Limpiar comprados?</Heading>
+          <Text style={styles.confirmText}>Se retirarán {purchased} {purchased === 1 ? 'producto comprado' : 'productos comprados'}. Los pendientes se conservarán.</Text>
+          <Text style={styles.confirmHint}>No se puede deshacer.</Text>
+          {list.error && <Text accessibilityRole="alert" style={styles.error}>{list.error}</Text>}
+          <View style={styles.confirmActions}>
+            <View style={styles.confirmAction}><Button label="Cancelar" secondary disabled={list.saving} onPress={() => setConfirmClear(false)} /></View>
+            <View style={styles.confirmAction}><Button label={list.saving ? 'Retirando…' : 'Retirar'} accessibilityLabel={`Retirar ${purchased} productos comprados`} disabled={disabled}
+              onPress={() => { void list.clearPurchased().then(saved => { if (saved) { setConfirmClear(false); if (editing && list.items.find(item => item.id === editing.id)?.purchased) setEditing(null); } }); }} /></View>
+          </View>
+        </View>
+      </View>
+    </Modal>
   </SafeAreaView>;
 }
 const useStyles = createThemedStyles(colors => StyleSheet.create({
@@ -83,5 +99,11 @@ const useStyles = createThemedStyles(colors => StyleSheet.create({
   pending: { fontSize: 13, fontWeight: '600', color: colors.ink }, footer: { gap: 14, marginTop: 4 }, localNote: { color: colors.ink, fontSize: 12 },
   bottom: { color: colors.ink, fontSize: 12, textAlign: 'center', marginTop: 40, marginBottom: 12 },
   errorBox: { padding: 16, backgroundColor: colors.errorBackground, borderRadius: ui.radius.control, marginBottom: 20, gap: 12 }, error: { color: colors.danger, lineHeight: 22 },
+  modalBackdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  confirmation: { width: '100%', maxWidth: 360, padding: 24, gap: 12, borderRadius: ui.radius.card, backgroundColor: colors.surface },
+  confirmTitle: { color: colors.ink, fontSize: 20, fontWeight: '700' },
+  confirmText: { color: colors.ink, fontSize: 15, lineHeight: 23 },
+  confirmHint: { color: colors.muted, fontSize: 13 },
+  confirmActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 8 }, confirmAction: { flex: 1, minWidth: 110 },
 }));
 

@@ -2,6 +2,17 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { createThemedStyles } from '../contexts/ThemeContext';
 import { ingredientIconKind, type IngredientIconKind } from '../services/ingredientIcons';
+import type { ThemeColors } from '../constants/theme';
+
+const category: Record<IngredientIconKind, 'Vegetable' | 'Fruit' | 'Dairy' | 'Egg' | 'Meat' | 'Fish' | 'Grain' | 'Bean'> = {
+  tomato: 'Vegetable', carrot: 'Vegetable', leaf: 'Vegetable', onion: 'Vegetable',
+  fruit: 'Fruit', milk: 'Dairy', cheese: 'Dairy', egg: 'Egg', meat: 'Meat', fish: 'Fish',
+  bread: 'Grain', grain: 'Grain', bean: 'Bean',
+};
+function categoryColors(colors: ThemeColors, kind: IngredientIconKind) {
+  const group = category[kind];
+  return { foreground: colors[`food${group}`], background: colors[`food${group}Soft`] };
+}
 
 const paths: Record<IngredientIconKind, string> = {
   tomato: 'M12 8C7 5 3 8 3 13a9 8 0 0 0 18 0c0-5-4-8-9-5ZM12 9V3m-4 3 4 3 4-3',
@@ -23,8 +34,9 @@ export function IngredientIcon({ name }: { name: string }) {
   const { colors, styles } = useStyles();
   const kind = ingredientIconKind(name);
   if (!kind) return null;
-  return <View accessible={false} aria-hidden={true} style={styles.icon}>
-    <Svg width={19} height={19} viewBox="0 0 24 24" fill="none" stroke={colors.accentText} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+  const palette = categoryColors(colors, kind);
+  return <View accessible={false} aria-hidden={true} style={[styles.icon, { backgroundColor: palette.background }]}>
+    <Svg width={19} height={19} viewBox="0 0 24 24" fill="none" stroke={palette.foreground} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
       <Path d={paths[kind]} />
       {kind === 'egg' && <Circle cx={12} cy={15} r={3} />}
     </Svg>
