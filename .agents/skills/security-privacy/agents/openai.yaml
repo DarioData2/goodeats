@@ -1,0 +1,4 @@
+interface:
+  display_name: "Seguridad y privacidad"
+  short_description: "Auditoría técnica y documentos de privacidad"
+  default_prompt: "Usa $security-privacy para revisar los riesgos de GoodEats y preparar los documentos necesarios basados en su funcionamiento real."
