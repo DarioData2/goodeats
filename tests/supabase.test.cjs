@@ -28,6 +28,52 @@ function fake(results, user = { id: 'owner' }) {
 }
 const own = { data: { id: 'list-a' }, error: null };
 
+test('el enlace de registro solo confirma si Supabase valida el correo', async () => {
+  const redirect = auth.readSignupRedirect('#access_token=fixture&refresh_token=ignored&type=signup');
+  assert.deepEqual(redirect, { accessToken: 'fixture' });
+  assert.equal(auth.readSignupRedirect('#type=recovery&access_token=fixture'), null);
+  assert.equal(auth.readSignupRedirect('#type=signup&confirmed=true'), null);
+  assert.deepEqual(auth.readSignupRedirect('#error_code=otp_expired'), { accessToken: '' });
+
+  client = { auth: { getUser: async token => {
+    assert.equal(token, 'fixture');
+    return { data: { user: { email_confirmed_at: '2026-11-07T00:00:00Z' } }, error: null };
+  } } };
+  assert.equal(await auth.checkSignupRedirect(redirect.accessToken), true);
+  assert.equal(await auth.checkSignupRedirect(''), false);
+  client.auth.getUser = async () => ({ data: { user: null }, error: { code: 'bad_jwt' } });
+  assert.equal(await auth.checkSignupRedirect('forged'), false);
+});
+
+test('confirmación rechaza códigos incompletos sin consultar Auth', async () => {
+  client = { auth: { verifyOtp: () => assert.fail('no debe consultar Auth') } };
+  for (const token of ['', '12345', '123abc', '12345678901']) {
+    await assert.rejects(auth.verifyRegistrationEmail('test@example.com', token), /código numérico/);
+  }
+});
+
+test('confirmación usa el código del servidor y exige una sesión válida', async () => {
+  client = { auth: { verifyOtp: async input => {
+    assert.deepEqual(input, { email: 'test@example.com', token: '123456', type: 'email' });
+    return { data: { session: { access_token: 'test-only' } }, error: null };
+  } } };
+  await auth.verifyRegistrationEmail(' test@example.com ', ' 123456 ');
+  client.auth.verifyOtp = async () => ({ data: { session: null }, error: null });
+  await assert.rejects(auth.verifyRegistrationEmail('test@example.com', '123456'), /iniciar la sesión/);
+  client.auth.verifyOtp = async () => ({ data: {}, error: { code: 'otp_expired' } });
+  await assert.rejects(auth.verifyRegistrationEmail('test@example.com', '123456'), /venció/);
+});
+
+test('reenviar solicita confirmación de registro y respeta errores de límite', async () => {
+  client = { auth: { resend: async input => {
+    assert.deepEqual(input, { type: 'signup', email: 'test@example.com' });
+    return { error: null };
+  } } };
+  await auth.resendRegistrationEmail(' test@example.com ');
+  client.auth.resend = async () => ({ error: { code: 'over_email_send_rate_limit' } });
+  await assert.rejects(auth.resendRegistrationEmail('test@example.com'), /Espera unos minutos/);
+});
+
 test('sin sesión no consulta ninguna tabla remota', async () => {
   const calls = fake([], null);
   await assert.rejects(service.getShoppingLists(), issue => issue.code === 'AUTH_REQUIRED');

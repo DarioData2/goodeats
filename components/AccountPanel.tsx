@@ -9,10 +9,14 @@ import { Button } from './Button';
 import { Heading } from './Heading';
 import { ProfilePanel } from './ProfilePanel';
 import { RecipeField } from './RecipeField';
+import { EmailVerificationPanel } from './EmailVerificationPanel';
+import { RegistrationResult } from './RegistrationResult';
 
 export function AccountPanel({ user, disabled }: { user: User | null; disabled: boolean }) {
   const { colors, styles } = useStyles();
   const [register, setRegister] = useState(false);
+  const [verification, setVerification] = useState<{ email: string; sent: boolean } | null>(null);
+  const [emailVerified, setEmailVerified] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -34,7 +38,7 @@ export function AccountPanel({ user, disabled }: { user: User | null; disabled: 
       if (register) {
         const signedIn = await signUp(email, password, { firstName, lastName });
         if (!signedIn) {
-          setMessage('Revisa tu correo para confirmar la cuenta y luego inicia sesión aquí. Si ya tenías cuenta, inicia sesión.');
+          setVerification({ email: email.trim(), sent: true });
           setRegister(false);
         }
       } else await signIn(email, password);
@@ -46,14 +50,17 @@ export function AccountPanel({ user, disabled }: { user: User | null; disabled: 
   async function logout() {
     if (lock.current || disabled || profileBusy) return;
     lock.current = true; setBusy(true); setError(null);
-    try { await signOut(); }
+    try { await signOut(); setVerification(null); }
     catch (issue) { setError(issue instanceof Error ? issue.message : 'No pudimos cerrar sesión.'); }
     finally { lock.current = false; setBusy(false); }
   }
   return <View style={styles.card}>
     {user ? <ProfilePanel key={user.id} user={user} disabled={disabled || busy} onBusyChange={setProfileBusy} /> : <Text style={styles.note}>Accede a tus listas manuales, menús anteriores y recetas por fecha guardados en tu cuenta.</Text>}
     {user && <Button secondary label={busy ? 'Cerrando sesión…' : 'Cerrar sesión'} disabled={disabled || busy || profileBusy} onPress={() => void logout()} />}
-    {!user && <View style={styles.form}>
+    {!user && verification && <EmailVerificationPanel key={verification.email} email={verification.email} sent={verification.sent} disabled={disabled}
+      onVerified={() => { setVerification(null); setEmailVerified(true); }}
+      onBack={() => { setVerification(null); setError(null); setMessage(null); }} />}
+    {!user && !verification && <View style={styles.form}>
       <Heading level={2} style={styles.title}>{register ? 'Crear cuenta' : 'Tus datos de acceso'}</Heading>
       {register && <>
         <RecipeField fieldId="register-first-name" label="Nombre" value={firstName} onChangeText={setFirstName} maxLength={80} autoComplete="given-name" editable={!busy} />
@@ -78,9 +85,15 @@ export function AccountPanel({ user, disabled }: { user: User | null; disabled: 
       <Button label={busy ? 'Conectando…' : register ? 'Crear cuenta' : 'Entrar'} disabled={busy || disabled} onPress={() => void submit()} />
       <Button secondary label={register ? 'Ya tengo cuenta' : 'Crear una cuenta nueva'} disabled={busy}
         onPress={() => { setRegister(!register); setShowPassword(false); setError(null); setMessage(null); }} />
+      {!register && <Button secondary label="Confirmar mi correo con un código" disabled={busy || disabled} onPress={() => {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError('Escribe tu correo para continuar con la confirmación.'); return; }
+        setError(null); setMessage(null); setPassword(''); setShowPassword(false); setVerification({ email: email.trim(), sent: false });
+      }} />}
     </View>}
     {(error || supabaseConfigurationError) && <Text accessibilityRole="alert" style={styles.error}>{error || supabaseConfigurationError}</Text>}
     {message && <Text accessibilityLiveRegion="polite" style={styles.note}>{message}</Text>}
+    {emailVerified && <RegistrationResult title="Correo confirmado" message="Tu cuenta está activa y ya puedes usar GoodEats."
+      onClose={() => setEmailVerified(false)} />}
   </View>;
 }
 const useStyles = createThemedStyles(colors => StyleSheet.create({

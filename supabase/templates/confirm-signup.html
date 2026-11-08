@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="es"><body style="font-family:Arial,sans-serif;color:#111827;background:#F9FAFB;padding:24px">
+  <main style="max-width:480px;margin:auto;background:white;padding:24px;border-radius:16px">
+    <h1 style="color:#6D28D9">Confirma tu correo en GoodEats</h1>
+    <p>Introduce este código en la pantalla de confirmación de GoodEats:</p>
+    <p style="font-size:32px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
+    <p>No compartas este código. Si venció, solicita uno nuevo desde GoodEats.</p>
+    <p>Si la pantalla de registro no te pide un código, puedes <a href="{{ .ConfirmationURL }}">confirmar tu correo con este enlace</a>.</p>
+    <p>Si no creaste esta cuenta, puedes ignorar este correo.</p>
+  </main>
+</body></html>
