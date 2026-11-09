@@ -5,6 +5,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { createThemedStyles } from '../contexts/ThemeContext';
 import { useAccount } from '../contexts/AuthContext';
 import { profileNames } from '../services/profileLogic';
+import { brand, typography } from '../constants/theme';
 
 export function AppHeader({ user, accountPage = false }: { user: User | null; accountPage?: boolean }) {
   const { colors, styles } = useStyles();
@@ -14,8 +15,10 @@ export function AppHeader({ user, accountPage = false }: { user: User | null; ac
   const fullName = [names.firstName, names.lastName].filter(Boolean).join(' ');
   return <View style={styles.header}>
     <View style={styles.brandRow}>
-    <Link href="/" accessibilityLabel="GoodEats: ir al inicio">
-      <Text style={styles.logo}>Good<Text style={styles.logoEnd}>Eats</Text></Text>
+    <Link href="/" asChild>
+      <Pressable accessibilityRole="link" accessibilityLabel="GoodEats: ir al inicio" style={styles.logoLink}>
+        <Text style={styles.logo}>Good<Text style={styles.logoEnd}>Eats</Text></Text>
+      </Pressable>
     </Link>
     <Link href={accountPage ? '/lista' : '/login'} asChild>
       <Pressable accessibilityRole="link" accessibilityLabel={accountPage ? 'Volver a la lista' : user ? `Mi cuenta${fullName ? `: ${fullName}` : ''}` : 'Iniciar sesión'} style={styles.button}>
@@ -33,7 +36,8 @@ export function AppHeader({ user, accountPage = false }: { user: User | null; ac
 const useStyles = createThemedStyles(colors => StyleSheet.create({
   header: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 12, paddingBottom: 24, borderBottomWidth: 1, borderBottomColor: colors.border },
   brandRow: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 20 },
-  logo: { fontSize: 28, fontWeight: '800', letterSpacing: -1.2, color: colors.primary }, logoEnd: { color: colors.accent },
+  logoLink: { minHeight: 48, justifyContent: 'center' },
+  logo: { fontFamily: typography.heading, fontSize: 28, letterSpacing: -1.2, color: colors.ink }, logoEnd: { color: brand.yellow },
   button: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.accent, justifyContent: 'center', alignItems: 'center' },
   avatar: { width: 48, height: 48, borderRadius: 24 },
 }));

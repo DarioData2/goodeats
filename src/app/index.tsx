@@ -27,7 +27,7 @@ export default function HomeRoute() {
   }, []);
 
   return <>
-    <HomeScreen user={user} />
+    <HomeScreen key={user?.id ?? 'local'} user={user} />
     {confirmed !== null && <RegistrationResult
       title={confirmed ? 'Correo confirmado' : 'No pudimos verificar el enlace'}
       message={confirmed ? 'Tu cuenta está activa. Ya puedes iniciar sesión en GoodEats.' : 'Si tu cuenta ya está confirmada, inicia sesión. Si todavía está pendiente, solicita un código nuevo desde el acceso.'}

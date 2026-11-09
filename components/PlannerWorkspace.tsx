@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { randomUUID } from 'expo-crypto';
+import { Link } from 'expo-router';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ui } from '../constants/theme';
@@ -170,7 +171,7 @@ function Weekly({ store, owner, shopping, onDraftChange }: { store: Store; owner
   const [activeDay, setActiveDay] = useState(() => (new Date().getDay() + 6) % 7);
   useEffect(() => { onDraftChange(dirty || !!slot); return () => onDraftChange(false); }, [dirty, slot, onDraftChange]);
   const disabled = store.busy || importing;
-  const groceries = generateGroceries(saved);
+  const groceries = generateGroceries(saved, store.data.pantry);
   function assign(recipe: Recipe | null) {
     if (!slot) return;
     try {
@@ -180,7 +181,10 @@ function Weekly({ store, owner, shopping, onDraftChange }: { store: Store; owner
     } catch (issue) { setError((issue as Error).message); }
   }
   async function save() {
-    if (await store.save(data => ({ ...data, weeks: { ...data.weeks, [week]: current }, purchased: { ...data.purchased, [week]: (data.purchased[week] ?? []).filter(key => generateGroceries(current).items.some(item => purchaseKey(item) === key)) } }))) { setDraft(null); setNotice('Semana guardada. Tus compras se actualizaron.'); }
+    if (await store.save(data => {
+      const keys = new Set(generateGroceries(current, data.pantry).items.map(purchaseKey));
+      return { ...data, weeks: { ...data.weeks, [week]: current }, purchased: { ...data.purchased, [week]: (data.purchased[week] ?? []).filter(key => keys.has(key)) } };
+    })) { setDraft(null); setNotice('Semana guardada. Tus compras se actualizaron.'); }
   }
   async function recover() {
     setImporting(true); setError('');
@@ -217,13 +221,20 @@ function Weekly({ store, owner, shopping, onDraftChange }: { store: Store; owner
       {dirty && <><Text style={styles.hint}>Guarda o cancela antes de cambiar de semana. Las compras se calculan con el menú guardado.</Text><Button label="Cancelar cambios del menú" secondary disabled={disabled} onPress={() => { setDraft(null); setSlot(null); setError(''); setNotice(''); }} /></>}
       <Button label="Generar lista de compras" disabled={disabled || dirty || !!slot} onPress={() => setPreview(true)} />
     </>}
-    {(shopping || preview) && <View style={styles.stack}><Heading level={2} style={styles.title}>Compras de la semana</Heading><Text style={styles.hint}>Se actualizan al guardar el menú. Marca cada producto al comprarlo. Tus productos manuales están en la vista Manual.</Text>
+    {(shopping || preview) && <View style={styles.stack}><Heading level={2} style={styles.title}>Compras de la semana</Heading><Text style={styles.hint}>Las cantidades descuentan lo que tienes en tu despensa. Marca cada producto al comprarlo.</Text>
+      <Link href="/despensa" asChild><Pressable accessibilityRole="link" style={styles.pantryLink}><Text style={styles.pantryLinkText}>Abrir Mi despensa</Text></Pressable></Link>
       {groceries.unlinked > 0 && <Text accessibilityRole="alert" style={styles.error}>{groceries.unlinked} comidas sin receta vinculada: sus ingredientes no se incluyeron.</Text>}
-      {!groceries.items.length && <View style={styles.card}><Text style={styles.body}>Aún no hay ingredientes. Elige recetas en Mi menú y guarda la semana.</Text></View>}
+      {groceries.covered > 0 && <Text style={styles.hint}>Ya tienes la cantidad necesaria de {groceries.covered} {groceries.covered === 1 ? 'ingrediente' : 'ingredientes'} en tu despensa.</Text>}
+      {!groceries.items.length && <View style={styles.card}><Text style={styles.body}>{groceries.covered ? 'Tu despensa cubre todos los ingredientes de las recetas de esta semana.' : 'Aún no hay ingredientes. Elige recetas en Mi menú y guarda la semana.'}</Text></View>}
       {AISLES.map(aisle => { const items = groceries.items.filter(item => item.aisle === aisle); return items.length ? <View key={aisle} style={styles.card}><Heading level={3} style={styles.title}>{aisle}</Heading>{items.map(item => {
         const key = purchaseKey(item); const checked = (store.data.purchased[week] ?? []).includes(key);
         return <Pressable key={item.key} accessibilityRole="checkbox" aria-checked={checked} accessibilityState={{ checked, disabled }} accessibilityLabel={`${item.name}, ${formatQuantity(item.quantity)} ${item.unit}`} disabled={disabled}
-          onPress={() => void store.save(data => { const keys = data.purchased[week] ?? []; return { ...data, purchased: { ...data.purchased, [week]: checked ? keys.filter(value => value !== key) : [...keys, key] } }; })} style={styles.grocery}>
+          onPress={() => void store.save(data => {
+            if (!generateGroceries(data.weeks[week] ?? blankWeek(), data.pantry).items.some(grocery => purchaseKey(grocery) === key)) return data;
+            const keys = new Set(data.purchased[week] ?? []);
+            if (checked) keys.delete(key); else keys.add(key);
+            return { ...data, purchased: { ...data.purchased, [week]: [...keys] } };
+          })} style={styles.grocery}>
           <Text style={styles.check}>{checked ? '☑' : '☐'}</Text><IngredientIcon name={item.name} /><View style={styles.groceryCopy}><Text style={[styles.body, checked && styles.crossed]}>{item.name}</Text><Text style={styles.hint}>{formatQuantity(item.quantity)} {item.unit}</Text></View></Pressable>;
       })}</View> : null; })}
     </View>}
@@ -240,4 +251,6 @@ const useStyles = createThemedStyles(colors => StyleSheet.create({
   error: { color: colors.danger, fontSize: 14, lineHeight: 22 }, returnBar: { padding: 12 }, calendar: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10 }, range: { color: colors.ink, fontWeight: '700', textAlign: 'center' },
   calendarDays: { flexDirection: 'row', gap: 2 }, calendarDay: { flex: 1, minHeight: 54, borderRadius: 8, borderWidth: 2, borderColor: colors.transparent, backgroundColor: colors.primarySoft, paddingVertical: 6, alignItems: 'center', justifyContent: 'center', gap: 6 }, planned: { backgroundColor: colors.primaryDark }, currentDay: { borderColor: colors.ink }, dayText: { fontSize: 12, color: colors.ink },
   meal: { borderTopWidth: 1, borderColor: colors.border, paddingTop: 14, gap: 10 }, grocery: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: 1, borderColor: colors.border, paddingVertical: 10 }, groceryCopy: { flex: 1 }, check: { color: colors.primary, fontSize: 26 }, crossed: { textDecorationLine: 'line-through', color: colors.muted },
+  pantryLink: { minHeight: 48, alignSelf: 'flex-start', justifyContent: 'center', paddingHorizontal: 16, borderRadius: ui.radius.control, backgroundColor: colors.primarySoft },
+  pantryLinkText: { fontSize: 15, fontWeight: '700', color: colors.primary },
 }));

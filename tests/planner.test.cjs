@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { blankWeek, blankPlanner, generateGroceries, positiveNumber, validateRecipe, decodePlanner, purchaseKey, MEAL_SLOTS, planFromLegacyMenu } = require('../.test-build/services/plannerLogic.js');
+const { blankWeek, blankPlanner, generateGroceries, positiveNumber, validateRecipe, decodePlanner, purchaseKey, MEAL_SLOTS, planFromLegacyMenu, updatePantry } = require('../.test-build/services/plannerLogic.js');
 const recipe = (ingredients) => ({ id: 'one', title: 'Ensalada', category: 'Ensaladas', servings: 2, ingredients, steps: 'Mezclar.' });
 const ingredient = (name, quantity, unit = 'g', aisle = 'Frutas y verduras') => ({ name, quantity, unit, aisle });
 test('scales portions, sums repeated ingredients across all meal slots and converts compatible units', () => {
@@ -85,4 +85,30 @@ test('recovering a legacy menu keeps breakfast, lunch and dinner in their origin
   assert.deepEqual(week[0], [{ text: 'Avena' }, { text: 'Arroz' }, { text: 'Sopa' }, null, null]);
   assert.equal(week.length, 7);
   assert.deepEqual(old[0], ['Avena', 'Arroz', 'Sopa']);
+});
+
+test('stock covers weekly requirements once across meals, matching compatible units and names', () => {
+  const week = blankWeek();
+  week[0][1] = { recipe: recipe([ingredient('Limón', 350), ingredient('Leche', 500, 'ml')]), servings: 2 };
+  week[1][1] = { recipe: recipe([ingredient('Limón', 300), ingredient('Limón', 2, 'unidad')]), servings: 2 };
+  const stock = [ingredient(' limon ', 0.5, 'kg'), ingredient('Leche', 1, 'litro')];
+  const result = generateGroceries(week, stock);
+  assert.equal(result.covered, 1);
+  assert.deepEqual(result.items.map(({ name, unit, quantity }) => [name, unit, quantity]), [['Limón', 'g', 150], ['Limón', 'unidad', 2]]);
+  assert.equal(generateGroceries(week).items.find(item => item.name === 'Limón' && item.unit === 'g').quantity, 650);
+});
+
+test('changing stock resets only changed purchase amounts and preserves weeks after reload', () => {
+  const data = blankPlanner();
+  const week = blankWeek();
+  week[0][1] = { recipe: recipe([ingredient('Tomate', 500), ingredient('Pan', 2, 'unidad')]), servings: 2 };
+  const date = '2026-10-12';
+  data.weeks[date] = week;
+  const original = generateGroceries(week).items;
+  data.purchased[date] = original.map(purchaseKey);
+  const restored = decodePlanner(JSON.stringify(updatePantry(data, [ingredient('Tomate', 200)])));
+  assert.deepEqual(restored.purchased[date], [purchaseKey(original.find(item => item.name === 'Pan'))]);
+  assert.deepEqual(restored.weeks, data.weeks);
+  assert.deepEqual(restored.pantry, [{ name: 'Tomate', quantity: 200, unit: 'g' }]);
+  assert.throws(() => decodePlanner(JSON.stringify({ ...restored, pantry: [...restored.pantry, ingredient(' tomate ', 0.2, 'kg')] })), /duplicados/);
 });

@@ -1,138 +1,140 @@
 import type { User } from '@supabase/supabase-js';
 import { Link } from 'expo-router';
+import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ui } from '../constants/theme';
 import { createThemedStyles } from '../contexts/ThemeContext';
+import { useHydration } from '../hooks/useHydration';
+import { usePlanner } from '../hooks/usePlanner';
+import { BOTTLE_CAPACITY_ML, waterTotal } from '../services/hydrationLogic';
+import { dateKey, weekStart } from '../services/menuDates';
+import { generateGroceries, MEAL_SLOTS, purchaseKey } from '../services/plannerLogic';
+import { formatQuantity } from '../services/quantities';
 import { AppHeader } from './AppHeader';
-import { MealIcon } from './MealIcon';
+import { Button } from './Button';
 import { Heading } from './Heading';
 
-const benefits = [
-  { number: '01', title: 'Menos olvidos', text: 'Anota lo que hace falta y marca lo que ya compraste.' },
-  { number: '02', title: 'Una semana más clara', text: 'Decide tus comidas con tiempo y consulta tu menú cuando lo necesites.' },
-  { number: '03', title: 'Todo a mano', text: 'Tus recetas, menú y compras, conectados en un mismo lugar.' },
+const features = [
+  { title: 'Hoy en GoodEats', description: 'Revisa tu menú del día, lo que falta comprar y tu hidratación.', available: true },
+  { title: 'Modo cocina', description: 'Sigue la preparación paso a paso y usa un temporizador mientras cocinas.' },
+  { title: 'Mi despensa', description: 'Registra lo que tienes y compra solo lo que falta para tu menú.', available: true },
+  { title: 'Lista compartida', description: 'Organiza las compras con otra persona y ve qué productos ya compró.' },
+  { title: 'Colecciones y menús reutilizables', description: 'Agrupa tus recetas favoritas y vuelve a usar una semana que te funcionó.' },
 ];
 
-function HomeLink({ href, label, outline = false }: { href: '/lista' | '/menu' | '/login' | '/recetas'; label: string; outline?: boolean }) {
+function HomeLink({ href, label, secondary = false }: { href: '/lista' | '/menu' | '/despensa' | '/hidratacion'; label: string; secondary?: boolean }) {
   const { styles } = useStyles();
-  return <Link href={href} asChild><Pressable accessibilityRole="link"
-    style={StyleSheet.flatten([styles.link, outline && styles.outline])}>
-    <Text style={[styles.linkText, outline && styles.outlineText]}>{label}</Text>
+  return <Link href={href} asChild><Pressable accessibilityRole="link" style={StyleSheet.flatten([styles.link, secondary && styles.secondary])}>
+    <Text style={[styles.linkText, secondary && styles.secondaryText]}>{label}</Text>
   </Pressable></Link>;
 }
 
 export function HomeScreen({ user }: { user: User | null }) {
-  const { colors, styles } = useStyles();
-  const wide = useWindowDimensions().width >= 850;
+  const { styles } = useStyles();
+  const owner = user?.id ?? 'local';
+  const planner = usePlanner(owner);
+  const hydration = useHydration(owner);
+  const wide = useWindowDimensions().width >= 820;
+  const [openMeal, setOpenMeal] = useState<number | null>(null);
+  const today = new Date();
+  const week = weekStart(today);
+  const plan = planner.data.weeks[week];
+  const meals = plan?.[(today.getDay() + 6) % 7] ?? [];
+  const purchased = new Set(planner.data.purchased[week]);
+  const pending = plan ? generateGroceries(plan, planner.data.pantry).items.filter(item => !purchased.has(purchaseKey(item))).length : 0;
+  const ml = waterTotal(hydration.data.days[dateKey(today)] ?? []);
+
   return <SafeAreaView style={styles.safe}>
     <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.container}>
         <AppHeader user={user} />
-        <View style={[styles.hero, wide && styles.heroWide]}>
+        <View style={[styles.hero, wide && styles.columns]}>
           <View style={styles.heroCopy}>
-            <Text style={styles.kicker}>BIENVENIDO A GOODEATS</Text>
-            <Text accessibilityRole="header" style={[styles.heading, wide && styles.headingWide]}>Menos vueltas.{ '\n' }<Text style={styles.highlight}>Más buenas comidas.</Text></Text>
-            <Text style={styles.subtitle}>Organiza tus compras y planea tus comidas. Dale un poco de orden a tu semana y disfruta de cocinar.</Text>
-            <View style={styles.heroActions}>
-              <HomeLink href="/lista" label="Crear mi lista" />
-              <HomeLink href="/menu" label="Planear mi menú" outline />
+            <Text style={styles.eyebrow}>{today.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
+            <Heading style={styles.title}>Hoy en GoodEats</Heading>
+            <Text style={styles.subtitle}>Tu menú, tus compras y lo que tienes en casa, en un solo lugar.</Text>
+            <View style={styles.actions}>
+              <HomeLink href="/menu" label={planner.ready && meals.some(Boolean) ? 'Abrir Mi menú' : 'Planear hoy'} />
+              <HomeLink href="/despensa" label="Mi despensa" secondary />
             </View>
-            <Text style={styles.small}>Puedes empezar sin crear una cuenta.</Text>
           </View>
-          <View style={[styles.preview, wide && styles.previewWide]}>
-            <Image source={require('../assets/home-salad.jpg')} accessibilityLabel="Ensalada fresca con huevo, verduras y frutos secos; fotografía ilustrativa" resizeMode="cover" style={styles.foodPhoto} />
-            <View style={styles.previewHeader}><Text style={styles.previewKicker}>UNA SEMANA CON ORDEN</Text><View style={styles.foodIcon}><MealIcon color={colors.onAccent} /></View></View>
-            <Text style={styles.previewTitle}>¿Qué cocinamos?</Text>
-            <View style={styles.exampleMeal}><Text style={styles.day}>LUNES · ALMUERZO</Text><Text style={styles.dish}>Porotos con riendas</Text></View>
-            <View style={styles.exampleMeal}><Text style={styles.day}>MARTES · ALMUERZO</Text><Text style={styles.dish}>Tortilla con ensalada</Text></View>
-            <Text style={styles.previewListTitle}>Y para la compra…</Text>
-            <View style={styles.previewRow}><Text style={styles.previewCheck}>✓</Text><Text style={styles.previewItem}>Porotos</Text><Text style={styles.quantity}>1 kg</Text></View>
-            <View style={styles.previewRow}><View style={styles.emptyCheck} /><Text style={styles.previewItem}>Tomates</Text><Text style={styles.quantity}>4 unidades</Text></View>
-            <Text style={styles.exampleNote}>Un ejemplo de cómo puedes organizarte.</Text>
-          </View>
+          <Image source={require('../assets/home-salad.jpg')} accessibilityLabel="Ensalada con huevo y verduras" resizeMode="cover" style={[styles.photo, wide && styles.photoWide]} />
         </View>
-        <View style={[styles.benefits, wide && styles.benefitsWide]}>{benefits.map(benefit => <View key={benefit.number} style={styles.benefit}>
-          <Text style={styles.number}>{benefit.number}</Text>
-          <Text style={styles.benefitTitle}>{benefit.title}</Text>
-          <Text style={styles.body}>{benefit.text}</Text>
-        </View>)}</View>
-        <View style={styles.sectionIntro}><Text style={styles.kicker}>ELIGE POR DÓNDE EMPEZAR</Text>
-          <Heading level={2} style={styles.sectionTitle}>Organiza tu cocina de principio a fin</Heading>
-        </View>
-        <View style={[styles.options, wide && styles.optionsWide]}>
-          <View style={styles.option}>
-            <View style={styles.optionTop}><Text style={styles.optionNumber}>RECETAS</Text><MealIcon color={colors.accentText} /></View>
-            <Heading level={3} style={styles.optionTitle}>Mis recetas</Heading>
-            <Text style={styles.body}>Guarda tus platos favoritos y vuelve a elegirlos en tu menú.</Text>
-            <View style={styles.features}><Text style={styles.feature}>✓ Ingredientes con cantidades y unidades.</Text><Text style={styles.feature}>✓ Porciones y pasos de preparación.</Text><Text style={styles.feature}>✓ Búsqueda y categorías.</Text></View>
-            <Text style={styles.storageNote}>Biblioteca guardada en este dispositivo. Las recetas anteriores por fecha siguen disponibles.</Text>
-            <HomeLink href="/recetas" label="Abrir Mis recetas" />
+
+        <View style={[styles.dashboard, wide && styles.columns]}>
+          <View style={styles.card}>
+            <Heading level={2} style={styles.section}>Tu menú de hoy</Heading>
+            {!planner.ready && <Text style={styles.body}>{planner.error ? 'No pudimos leer tu menú.' : 'Cargando tu menú…'}</Text>}
+            {planner.ready && !meals.some(Boolean) && <Text style={styles.body}>Aún no tienes comidas planificadas para hoy.</Text>}
+            {planner.ready && meals.map((meal, index) => {
+              if (!meal) return null;
+              const slot = MEAL_SLOTS[index];
+              if ('text' in meal) return <View key={slot} style={styles.meal}><Text style={styles.label}>{slot}</Text><Text style={styles.body}>{meal.text}</Text></View>;
+              const expanded = openMeal === index;
+              return <View key={slot} style={styles.meal}>
+                <Text style={styles.label}>{slot}</Text>
+                <Text style={styles.body}>{meal.recipe.title} · {formatQuantity(meal.servings)} {meal.servings === 1 ? 'porción' : 'porciones'}</Text>
+                <Pressable accessibilityRole="button" accessibilityLabel={`${expanded ? 'Ocultar' : 'Ver'} receta de ${meal.recipe.title}, ${slot}`} aria-expanded={expanded}
+                  onPress={() => setOpenMeal(expanded ? null : index)} style={[styles.link, styles.secondary]}>
+                  <Text style={[styles.linkText, styles.secondaryText]}>{expanded ? 'Ocultar receta' : 'Ver receta'}</Text>
+                </Pressable>
+                {expanded && <View style={styles.meal}>
+                  <Text style={styles.label}>Ingredientes</Text>
+                  {meal.recipe.ingredients.map((item, itemIndex) => <Text key={itemIndex} style={styles.body}>{item.name} · {formatQuantity(item.quantity * (meal.servings / meal.recipe.servings))} {item.unit}</Text>)}
+                  <Text style={styles.label}>Preparación</Text><Text style={styles.body}>{meal.recipe.steps || 'Esta receta no tiene pasos guardados.'}</Text>
+                </View>}
+              </View>;
+            })}
+            {!planner.ready && !!planner.error && <Button secondary label="Volver a cargar el menú" onPress={() => void planner.reload()} />}
           </View>
-          <View style={styles.option}>
-            <View style={styles.optionTop}><Text style={styles.optionNumber}>01 / COMPRAS</Text><Text style={styles.optionSymbol}>＋</Text></View>
-            <Heading level={3} style={styles.optionTitle}>Mi lista</Heading>
-            <Text style={styles.body}>Todo lo que necesitas comprar, en una lista fácil de revisar.</Text>
-            <View style={styles.features}>
-              <Text style={styles.feature}>✓ Genera ingredientes desde tu menú.</Text>
-              <Text style={styles.feature}>✓ Agrupa por sección de compra.</Text>
-              <Text style={styles.feature}>✓ Marca lo comprado; conserva tu lista manual.</Text>
+          <View style={styles.summary}>
+            <View style={styles.card}>
+              <Heading level={2} style={styles.section}>Compras de la semana</Heading>
+              <Text style={styles.body}>{planner.ready ? `${pending} ${pending === 1 ? 'ingrediente pendiente del menú' : 'ingredientes pendientes del menú'}` : planner.error ? 'Compras no disponibles por ahora.' : 'Cargando compras…'}</Text>
+              <HomeLink href="/lista" label="Ver mi lista" secondary />
             </View>
-            <Text style={styles.storageNote}>Las compras del menú se guardan en este dispositivo. La lista manual conserva su guardado en la nube.</Text>
-            <HomeLink href="/lista" label="Abrir Mi lista" />
-          </View>
-          <View style={[styles.option, styles.menuOption]}>
-            <View style={styles.optionTop}><Text style={styles.optionNumber}>02 / SEMANA</Text><MealIcon color={colors.accentText} /></View>
-            <Heading level={3} style={styles.optionTitle}>Mi menú</Heading>
-            <Text style={styles.body}>Planifica desayunos, almuerzos, cenas, snacks y postres de lunes a domingo.</Text>
-            <View style={styles.features}>
-              <Text style={styles.feature}>✓ Elige recetas y ajusta las porciones.</Text>
-              <Text style={styles.feature}>✓ Cambia de semana desde el calendario.</Text>
-              <Text style={styles.feature}>✓ Identifica los días con platos guardados.</Text>
+            <View style={styles.card}>
+              <Heading level={2} style={styles.section}>Hidratación de hoy</Heading>
+              <Text style={styles.body}>{hydration.ready ? `${formatQuantity(ml)} / ${formatQuantity(hydration.data.goalMl ?? BOTTLE_CAPACITY_ML)} ml` : hydration.error ? 'No pudimos leer tu hidratación.' : 'Cargando hidratación…'}</Text>
+              <HomeLink href="/hidratacion" label="Abrir Mi salud" secondary />
             </View>
-            <Text style={styles.storageNote}>La nueva planificación se guarda en este dispositivo. Tu menú anterior sigue disponible.</Text>
-            <HomeLink href="/menu" label="Abrir Mi menú" />
           </View>
         </View>
-        <View style={[styles.account, wide && styles.accountWide]}>
-          <View style={styles.accountCopy}><Text style={styles.accountTitle}>{user ? 'Tu cuenta, siempre a mano' : 'Lleva tu lista a otros dispositivos'}</Text>
-            <Text style={styles.body}>{user ? 'Gestiona tu sesión y vuelve a tus listas cuando quieras.' : 'Accede a tus listas manuales, menús anteriores y recetas por fecha en la nube. La nueva biblioteca y planificación funcionan por ahora en este dispositivo.'}</Text></View>
-          <HomeLink href="/login" label={user ? 'Gestionar mi cuenta' : 'Acceder a mi cuenta'} />
+
+        <View style={styles.featureSection}>
+          <Heading level={2} style={styles.section}>Organiza tu cocina en cinco pasos</Heading>
+          {features.map((feature, index) => <View key={feature.title} style={styles.card}>
+            <View style={styles.featureHeader}>
+              <Heading level={3} style={styles.featureTitle}>{index + 1}. {feature.title}</Heading>
+              <Text style={[styles.status, feature.available && styles.available]}>{feature.available ? 'Disponible' : 'Próximamente'}</Text>
+            </View>
+            <Text style={styles.body}>{feature.description}</Text>
+            {feature.title === 'Mi despensa' && <HomeLink href="/despensa" label="Abrir Mi despensa" />}
+          </View>)}
         </View>
-        <Text style={styles.footer}>Buenas comidas empiezan con un poco de organización.</Text>
       </View>
     </ScrollView>
   </SafeAreaView>;
 }
+
 const useStyles = createThemedStyles(colors => StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 24 },
-  container: { width: '100%', maxWidth: 1080, alignSelf: 'center' },
-  hero: { paddingTop: 36, paddingBottom: 32, gap: 28 }, heroWide: { flexDirection: 'row', alignItems: 'center', gap: 40, paddingVertical: 48 },
-  heroCopy: { flex: 1, gap: 18 }, kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 1.6, color: colors.ink },
-  heading: { fontSize: 38, lineHeight: 44, fontWeight: '800', letterSpacing: -1.3, color: colors.ink },
-  headingWide: { fontSize: 54, lineHeight: 60 }, highlight: { color: colors.primary }, subtitle: { fontSize: 17, lineHeight: 26, color: colors.muted, maxWidth: 510 },
-  heroActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, small: { fontSize: 13, color: colors.ink },
-  link: { minHeight: 48, backgroundColor: colors.primary, borderRadius: ui.radius.control, paddingHorizontal: 18, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
-  outline: { backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: colors.primarySoft }, outlineText: { color: colors.primary }, linkText: { fontSize: 14, fontWeight: '700', color: colors.onPrimary },
-  preview: { backgroundColor: colors.surface, padding: 20, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, gap: 12 }, previewWide: { width: 380 },
-  foodPhoto: { width: '100%', height: 200, borderRadius: ui.radius.control, backgroundColor: colors.accentSoft },
-  foodIcon: { padding: ui.spacing.small, borderRadius: ui.radius.control, backgroundColor: colors.accent },
-  previewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
-  previewKicker: { fontSize: 10, fontWeight: '700', letterSpacing: 1.2, color: colors.primaryDark }, previewTitle: { fontSize: 23, fontWeight: '700', color: colors.ink },
-  exampleMeal: { backgroundColor: colors.accentSoft, padding: 12, borderRadius: ui.radius.control, gap: 5 }, day: { fontSize: 10, fontWeight: '700', color: colors.accentText, letterSpacing: 0.7 },
-  dish: { fontSize: 16, fontWeight: '600', color: colors.ink }, previewListTitle: { fontSize: 13, fontWeight: '700', color: colors.ink, marginTop: 6 },
-  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 10 }, previewCheck: { width: 20, height: 20, borderRadius: 6, backgroundColor: colors.primaryDark, color: colors.onPrimary, textAlign: 'center', fontWeight: '700' },
-  emptyCheck: { width: 20, height: 20, borderWidth: 1, borderColor: colors.controlBorder, borderRadius: 6 }, previewItem: { flex: 1, fontSize: 14, color: colors.ink }, quantity: { fontSize: 12, color: colors.muted },
-  exampleNote: { fontSize: 11, lineHeight: 17, color: colors.muted, marginTop: 4 },
-  benefits: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 24, gap: 24 }, benefitsWide: { flexDirection: 'row', gap: 28 },
-  benefit: { flex: 1, gap: 7 }, number: { fontSize: 11, fontWeight: '700', color: colors.primaryDark }, benefitTitle: { fontSize: 18, fontWeight: '700', color: colors.ink },
-  body: { fontSize: 15, lineHeight: 23, color: colors.ink },
-  sectionIntro: { paddingTop: 36, paddingBottom: 20, gap: 10 }, sectionTitle: { fontSize: 26, lineHeight: 33, fontWeight: '700', color: colors.ink },
-  options: { gap: 16 }, optionsWide: { flexDirection: 'row', alignItems: 'stretch' },
-  option: { flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 24, gap: 14 }, menuOption: { backgroundColor: colors.surface },
-  optionTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, optionNumber: { fontSize: 11, letterSpacing: 1, fontWeight: '700', color: colors.primaryDark },
-  optionSymbol: { fontSize: 22, color: colors.primaryDark }, optionTitle: { fontSize: 28, fontWeight: '700', color: colors.ink },
-  features: { gap: 9 }, feature: { fontSize: 14, lineHeight: 22, color: colors.ink }, storageNote: { flexGrow: 1, fontSize: 12, lineHeight: 19, color: colors.muted },
-  account: { marginTop: 24, backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 24, gap: 18 }, accountWide: { flexDirection: 'row', alignItems: 'center' },
-  accountCopy: { flex: 1, gap: 7 }, accountTitle: { fontSize: 20, fontWeight: '700', color: colors.ink }, footer: { fontSize: 12, lineHeight: 19, textAlign: 'center', color: colors.ink, paddingVertical: 28 },
+  safe: { flex: 1, backgroundColor: colors.background }, scroll: { flexGrow: 1, padding: 20 },
+  container: { width: '100%', maxWidth: 1080, alignSelf: 'center', gap: 20 },
+  hero: { paddingVertical: 12, gap: 20 }, heroCopy: { flex: 1, gap: 12, justifyContent: 'center' },
+  columns: { flexDirection: 'row', alignItems: 'flex-start' },
+  eyebrow: { fontSize: 13, fontWeight: '700', color: colors.primaryDark, textTransform: 'uppercase', letterSpacing: 1 },
+  title: { fontSize: 38, lineHeight: 46, color: colors.ink }, subtitle: { fontSize: 17, lineHeight: 26, color: colors.muted },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  photo: { width: '100%', height: 160, borderRadius: ui.radius.card, backgroundColor: colors.accentSoft }, photoWide: { width: '43%', height: 220 },
+  dashboard: { gap: 14 }, summary: { flex: 1, gap: 14 },
+  card: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: ui.radius.card, padding: 18, gap: 12, backgroundColor: colors.surface },
+  section: { fontSize: 21, lineHeight: 29, color: colors.ink }, label: { fontSize: 14, fontWeight: '700', color: colors.primaryDark },
+  body: { fontSize: 15, lineHeight: 23, color: colors.muted }, meal: { gap: 8, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 },
+  link: { minHeight: 48, alignSelf: 'flex-start', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 10, borderRadius: ui.radius.control, backgroundColor: colors.accent },
+  secondary: { backgroundColor: colors.primarySoft }, linkText: { fontWeight: '700', color: colors.onAccent }, secondaryText: { color: colors.primary },
+  featureSection: { gap: 12, paddingTop: 8 }, featureHeader: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'space-between' },
+  featureTitle: { fontSize: 17, lineHeight: 24, color: colors.ink, flexShrink: 1 },
+  status: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: ui.radius.control, backgroundColor: colors.primarySoft, color: colors.primaryDark, fontSize: 12, fontWeight: '700' },
+  available: { backgroundColor: colors.accentSoft, color: colors.accentText },
 }));

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Slot } from 'expo-router';
+import { useFonts } from 'expo-font';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -8,7 +9,9 @@ import { startSupabaseAuthLifecycle } from '../../lib/supabase';
 import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
 import { BottomNavigation } from '../../components/BottomNavigation';
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({ PoppinsExtraBold: require('../../assets/fonts/Poppins-ExtraBold.ttf') });
   useEffect(startSupabaseAuthLifecycle, []);
+  if (!fontsLoaded && !fontError) return null;
   return <SafeAreaProvider><ThemeProvider><ThemedApp /></ThemeProvider></SafeAreaProvider>;
 }
 function ThemedApp() {

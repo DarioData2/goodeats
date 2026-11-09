@@ -1,12 +1,14 @@
+export const brand = { yellow: '#FDC71B', shade: '#F9BA09', brown: '#380C04', white: '#FAF9F8', highlight: '#FCDC5A' };
+export const typography = { heading: 'PoppinsExtraBold' };
 export const lightColors = {
-  background: '#F9FAFB', surface: '#FFFFFF', ink: '#111827', muted: '#4B5563',
-  primary: '#6D28D9', primaryDark: '#5B21B6', primarySoft: '#F3EEFC',
-  accent: '#FF7A18', accentSoft: '#FFF1E7', accentText: '#9A3D00',
-  onPrimary: '#FFFFFF', onAccent: '#111827', border: '#E5E7EB',
-  input: '#FFFFFF', controlBorder: '#6B7280', danger: '#B42318', errorBackground: '#FEF3F2',
+  background: '#FAF9F8', surface: '#FFFFFF', ink: '#380C04', muted: '#70594F',
+  primary: '#713A0A', primaryDark: '#380C04', primarySoft: '#FFF3CA',
+  accent: '#FDC71B', accentSoft: '#FFF3CA', accentText: '#713A0A',
+  onPrimary: '#FAF9F8', onAccent: '#380C04', border: '#E8DFD7',
+  input: '#FFFFFF', controlBorder: '#8C7667', danger: '#B42318', errorBackground: '#FEF3F2',
   disabled: '#E5E7EB', onDisabled: '#4B5563', transparent: 'transparent',
   overlay: 'rgba(17,24,39,0.4)',
-  onAccentIcon: '#FFFFFF',
+  onAccentIcon: '#380C04',
   foodVegetable: '#247344', foodVegetableSoft: '#EAF5ED',
   foodFruit: '#AD3B25', foodFruitSoft: '#FFF0E8',
   foodDairy: '#285BA8', foodDairySoft: '#EAF1FC',
@@ -20,13 +22,13 @@ export const lightColors = {
 export type ThemeColors = typeof lightColors;
 export type ColorMode = 'light' | 'dark';
 export const darkColors: ThemeColors = {
-  background: '#09090B', surface: '#18181B', ink: '#FAFAFA', muted: '#B8BBC5',
-  primary: '#C4A4FF', primaryDark: '#D7C2FF', primarySoft: '#2A1E40',
-  accent: '#FF7A18', accentSoft: '#352115', accentText: '#FFAD70',
-  onPrimary: '#160C24', onAccent: '#111827', border: '#3F3F46',
-  input: '#202024', controlBorder: '#85858F', danger: '#FFABA3', errorBackground: '#3B171B',
+  background: '#17110E', surface: '#241B15', ink: '#FAF9F8', muted: '#D1BFB0',
+  primary: '#FDC71B', primaryDark: '#FCDC5A', primarySoft: '#3C2D0D',
+  accent: '#FDC71B', accentSoft: '#3C2D0D', accentText: '#FCDC5A',
+  onPrimary: '#380C04', onAccent: '#380C04', border: '#514034',
+  input: '#2B211A', controlBorder: '#AD9380', danger: '#FFABA3', errorBackground: '#3B171B',
   disabled: '#303036', onDisabled: '#B8BBC5', transparent: 'transparent',
-  overlay: 'rgba(0,0,0,0.7)', onAccentIcon: '#FFFFFF',
+  overlay: 'rgba(0,0,0,0.7)', onAccentIcon: '#380C04',
   foodVegetable: '#90D8A5', foodVegetableSoft: '#182E21',
   foodFruit: '#FFAD91', foodFruitSoft: '#382219',
   foodDairy: '#A2C5FF', foodDairySoft: '#1A2940',

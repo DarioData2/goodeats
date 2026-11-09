@@ -10,8 +10,8 @@ export function Button({ label, onPress, disabled, secondary, accessibilityLabel
   </Pressable>;
 }
 const useStyles = createThemedStyles(colors => StyleSheet.create({
-  button: { minHeight: 48, paddingHorizontal: 18, paddingVertical: 13, borderRadius: ui.radius.control, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  button: { minHeight: 48, paddingHorizontal: 18, paddingVertical: 13, borderRadius: ui.radius.control, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
   secondary: { backgroundColor: colors.primarySoft }, secondaryText: { color: colors.primary },
   disabled: { backgroundColor: colors.disabled }, disabledText: { color: colors.onDisabled },
-  text: { color: colors.onPrimary, fontWeight: '700', fontSize: 15 },
+  text: { color: colors.onAccent, fontWeight: '700', fontSize: 15 },
 }));

@@ -38,7 +38,7 @@ test('both palettes provide AA contrast for text, fields, primary actions and al
   for (const colors of [lightColors, darkColors]) {
     for (const [text, background] of [
       ['ink','background'], ['ink','surface'], ['ink','input'], ['muted','surface'],
-      ['onPrimary','primary'], ['onPrimary','primaryDark'], ['primary','primarySoft'],
+      ['onPrimary','primary'], ['onPrimary','primaryDark'], ['primary','primarySoft'], ['onAccent','accent'], ['onAccentIcon','accent'],
       ['primaryDark','primarySoft'], ['accentText','accentSoft'], ['danger','errorBackground'], ['onDisabled','disabled'],
     ]) assert.ok(contrast(colors[text], colors[background]) >= 4.5, `${text}/${background} contrast: ${contrast(colors[text], colors[background])}`);
     assert.ok(contrast(colors.controlBorder, colors.input) >= 3);
